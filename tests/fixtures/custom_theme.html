@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if title %}{{ title }}{% else %}Document{% endif %}</title>
+</head>
+<body>
+    <div class="CUSTOM_THEME_SENTINEL">
+        {% if title %}<h1>{{ title }}</h1>{% endif %}
+        {% if toc_html %}<nav>{{ toc_html | safe }}</nav>{% endif %}
+        <main>
+            {% for path, body in sections %}
+                {{ body | safe }}
+            {% endfor %}
+        </main>
+    </div>
+</body>
+</html>

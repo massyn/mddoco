@@ -4,14 +4,6 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 
 
-def _make_env() -> Environment:
-    themes_dir = files("mddoco").joinpath("themes")
-    return Environment(
-        loader=FileSystemLoader(str(themes_dir)),
-        autoescape=True,
-    )
-
-
 def render_html(
     sections: list[tuple[Path, str]],
     title: str | None = None,
@@ -20,9 +12,17 @@ def render_html(
     has_mermaid: bool = False,
 ) -> str:
     """Render a full HTML document from (path, html_fragment) pairs."""
-    env = _make_env()
+    theme_path = Path(theme)
+    if theme_path.is_file():
+        loader_dir = str(theme_path.parent.resolve())
+        template_name = theme_path.name
+    else:
+        loader_dir = str(files("mddoco").joinpath("themes"))
+        template_name = f"{theme}.html"
+
+    env = Environment(loader=FileSystemLoader(loader_dir), autoescape=True)
     try:
-        template = env.get_template(f"{theme}.html")
+        template = env.get_template(template_name)
     except TemplateNotFound:
         raise ValueError(f"Theme '{theme}' not found.")
     return template.render(

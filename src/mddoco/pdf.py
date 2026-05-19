@@ -27,6 +27,12 @@ def html_to_pdf(html_content: str, dest: Path) -> None:
             browser = p.chromium.launch()
             page = browser.new_page()
             page.goto(tmp_path.as_uri(), wait_until="networkidle")
+            # If Paged.js is present, wait for it to finish paginating before
+            # capturing — networkidle fires before its JS layout pass completes.
+            page.wait_for_function(
+                "typeof window.PagedPolyfill === 'undefined'"
+                " || !!document.querySelector('.pagedjs_pages')"
+            )
             page.pdf(path=str(dest), format="A4", print_background=True)
             browser.close()
     finally:

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if title %}{{ title }}{% else %}Document{% endif %}</title>
+    {% if has_mermaid %}
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true });</script>
+    {% endif %}
+</head>
+<body>
+    {% if title %}<h1>{{ title }}</h1>{% endif %}
+
+    {% if toc_html %}
+    <nav>
+        {{ toc_html | safe }}
+    </nav>
+    {% endif %}
+
+    <main>
+        {% for path, body in sections %}
+            {{ body | safe }}
+            {% if not loop.last %}<hr>{% endif %}
+        {% endfor %}
+    </main>
+</body>
+</html>

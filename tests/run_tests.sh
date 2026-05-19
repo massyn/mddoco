@@ -450,6 +450,55 @@ check_not_contains \
     'max-width: 720px'
 
 # ---------------------------------------------------------------------------
+# 23. vanilla theme
+# ---------------------------------------------------------------------------
+run_test \
+    "vanilla theme generates output" \
+    "$OUT/vanilla/fixtures.html" \
+    "$FIXTURES" --theme vanilla -o "$OUT/vanilla"
+
+check_not_contains \
+    "vanilla: no <style> block present" \
+    "$OUT/vanilla/fixtures.html" \
+    '<style>'
+
+# ---------------------------------------------------------------------------
+# 24. paged-professional theme
+# ---------------------------------------------------------------------------
+run_test \
+    "paged-professional theme generates output" \
+    "$OUT/paged_professional/fixtures.html" \
+    "$FIXTURES" --theme paged-professional --title "Paged Professional Demo" --toc -o "$OUT/paged_professional"
+
+check_contains \
+    "paged-professional: Paged.js CDN loaded" \
+    "$OUT/paged_professional/fixtures.html" \
+    "pagedjs"
+
+check_contains \
+    "paged-professional: @page CSS rule present" \
+    "$OUT/paged_professional/fixtures.html" \
+    '@page'
+
+check_contains \
+    "paged-professional: title rendered" \
+    "$OUT/paged_professional/fixtures.html" \
+    "Paged Professional Demo"
+
+# ---------------------------------------------------------------------------
+# 25. External theme path
+# ---------------------------------------------------------------------------
+run_test \
+    "external theme path" \
+    "$OUT/external_theme/fixtures.html" \
+    "$FIXTURES" --theme "$FIXTURES/custom_theme.html" -o "$OUT/external_theme"
+
+check_contains \
+    "external theme: custom sentinel present in output" \
+    "$OUT/external_theme/fixtures.html" \
+    "CUSTOM_THEME_SENTINEL"
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo "─────────────────────────────────────────────"

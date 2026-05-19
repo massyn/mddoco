@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if title %}{{ title }}{% else %}Document{% endif %}</title>
+    <style>
+        /* ── Paged Media: headers, footers, page size ───────────────── */
+        @page {
+            size: A4;
+            margin: 28mm 22mm 25mm 22mm;
+
+            @top-left {
+                content: string(section-heading);
+                font-family: 'Segoe UI', Arial, sans-serif;
+                font-size: 8pt;
+                color: #1a3a5c;
+                border-bottom: 0.75pt solid #2d6cbe;
+                padding-bottom: 3pt;
+                vertical-align: bottom;
+            }
+            @top-right {
+                content: string(doc-title);
+                font-family: 'Segoe UI', Arial, sans-serif;
+                font-size: 8pt;
+                color: #888;
+                vertical-align: bottom;
+            }
+            @bottom-center {
+                content: "Page " counter(page) " of " counter(pages);
+                font-family: 'Segoe UI', Arial, sans-serif;
+                font-size: 8pt;
+                color: #555;
+            }
+        }
+
+        /* Title page: enlarged top margin, no header or footer */
+        @page :first {
+            margin-top: 45mm;
+            @top-left  { content: ""; border: none; }
+            @top-right { content: ""; }
+            @bottom-center { content: ""; }
+        }
+
+        /* ── Palette ────────────────────────────────────────────────── */
+        :root {
+            --primary:      #1a3a5c;
+            --accent:       #2d6cbe;
+            --accent-light: #e8f0fb;
+            --border:       #b0bec5;
+            --muted:        #546e7a;
+        }
+
+        /* ── Base ───────────────────────────────────────────────────── */
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 10.5pt;
+            line-height: 1.7;
+            color: #263238;
+            background: #dde0e8;
+            margin: 0;
+            padding: 2rem;
+        }
+
+        /* Shadow around each page when viewed on screen */
+        .pagedjs_page {
+            box-shadow: 0 3px 16px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2.5rem !important;
+        }
+
+        /* ── Title page ─────────────────────────────────────────────── */
+        .doc-title-page {
+            text-align: center;
+            padding: 3rem 2rem 3.5rem;
+            border-bottom: 3pt solid var(--accent);
+            margin-bottom: 3rem;
+            break-after: page;
+        }
+        .doc-title-page h1 {
+            font-size: 24pt;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0 0 1rem;
+            border: none;
+            padding: 0;
+            /* Captured into the right-side running header on subsequent pages */
+            string-set: doc-title content(text);
+        }
+        .doc-title-page .subtitle {
+            font-size: 10pt;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        /* ── Headings ───────────────────────────────────────────────── */
+        /* Section h1s update the left-side running header */
+        main h1 {
+            font-size: 15pt;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 2pt solid var(--accent);
+            padding-bottom: 0.3em;
+            margin-top: 1.8em;
+            margin-bottom: 0.6em;
+            string-set: section-heading content(text);
+        }
+        h2 {
+            font-size: 12pt;
+            font-weight: 600;
+            color: var(--accent);
+            border-bottom: 0.75pt solid var(--border);
+            padding-bottom: 0.2em;
+            margin-top: 1.4em;
+            margin-bottom: 0.4em;
+        }
+        h3 {
+            font-size: 11pt;
+            font-weight: 600;
+            color: var(--primary);
+            margin-top: 1.2em;
+            margin-bottom: 0.3em;
+        }
+        h4 {
+            font-size: 10.5pt;
+            font-weight: 600;
+            color: var(--muted);
+            margin-top: 1em;
+        }
+
+        /* ── Links ──────────────────────────────────────────────────── */
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── Paragraphs ─────────────────────────────────────────────── */
+        p { margin: 0.6em 0 0.8em; }
+
+        /* ── Code ───────────────────────────────────────────────────── */
+        code {
+            font-family: 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
+            font-size: 0.85em;
+            background: #f1f4f8;
+            border: 0.5pt solid var(--border);
+            padding: 0.1em 0.35em;
+            border-radius: 2pt;
+        }
+        pre {
+            background: #1e2a38;
+            border-radius: 3pt;
+            padding: 1rem 1.25rem;
+            overflow-x: auto;
+            line-height: 1.45;
+        }
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.85em;
+            color: #cdd9e5;
+        }
+
+        /* ── Tables ─────────────────────────────────────────────────── */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+            font-size: 9.5pt;
+        }
+        th {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            padding: 0.5em 0.9em;
+            text-align: left;
+            border: 0.5pt solid #2a4f78;
+        }
+        td {
+            padding: 0.45em 0.9em;
+            border: 0.5pt solid var(--border);
+        }
+        tr:nth-child(even) td { background: var(--accent-light); }
+
+        /* ── Blockquote ─────────────────────────────────────────────── */
+        blockquote {
+            margin: 1em 0;
+            padding: 0.6em 1.1em;
+            border-left: 3pt solid var(--accent);
+            background: var(--accent-light);
+            color: var(--muted);
+            border-radius: 0 3pt 3pt 0;
+        }
+        blockquote p { margin: 0; }
+
+        /* ── Lists ──────────────────────────────────────────────────── */
+        ul, ol { padding-left: 1.5em; margin: 0.5em 0; }
+        li { margin: 0.25em 0; }
+
+        /* ── Dividers ───────────────────────────────────────────────── */
+        hr { border: none; border-top: 0.75pt solid var(--border); margin: 2em 0; }
+
+        /* ── Images ─────────────────────────────────────────────────── */
+        img { max-width: 100%; height: auto; }
+
+        /* ── Table of Contents ──────────────────────────────────────── */
+        .toc-block {
+            background: var(--accent-light);
+            border: 0.75pt solid #b3c8ee;
+            border-left: 3pt solid var(--accent);
+            border-radius: 0 3pt 3pt 0;
+            padding: 0.9rem 1.3rem;
+            margin: 1.5rem 0 2.5rem;
+            display: inline-block;
+            min-width: 280px;
+        }
+        .toc-block .toc-heading {
+            font-size: 7pt;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin: 0 0 0.5rem;
+        }
+        .toc-block ul { margin: 0; padding-left: 1.1em; list-style: none; }
+        .toc-block ul ul { padding-left: 1em; }
+        .toc-block li { margin: 0.2em 0; }
+        .toc-block a { color: var(--primary); font-size: 9pt; }
+        .toc-block a:hover { color: var(--accent); }
+
+        /* ── Mermaid ────────────────────────────────────────────────── */
+        .mermaid { text-align: center; margin: 1.5em 0; }
+    </style>
+    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+    {% if has_mermaid %}
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral' });</script>
+    {% endif %}
+</head>
+<body>
+    {% if title %}
+    <div class="doc-title-page">
+        <h1>{{ title }}</h1>
+        <p class="subtitle">Generated by mddoco</p>
+    </div>
+    {% endif %}
+
+    {% if toc_html %}
+    <nav class="toc-block" aria-label="Table of contents">
+        <p class="toc-heading">Contents</p>
+        {{ toc_html | safe }}
+    </nav>
+    {% endif %}
+
+    <main>
+        {% for path, body in sections %}
+            {% if not loop.first %}<hr>{% endif %}
+            <section>{{ body | safe }}</section>
+        {% endfor %}
+    </main>
+</body>
+</html>
