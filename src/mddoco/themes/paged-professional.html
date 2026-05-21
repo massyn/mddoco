@@ -208,16 +208,13 @@
             border-radius: 0 3pt 3pt 0;
             padding: 0.9rem 1.3rem;
             margin: 1.5rem 0 2.5rem;
-            display: inline-block;
-            min-width: 280px;
+            display: block;
+            max-width: 340px;
         }
-        .toc-block .toc-heading {
-            font-size: 7pt;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--accent);
-            margin: 0 0 0.5rem;
+
+        /* Ensure page boxes render with a white background on screen */
+        .pagedjs_pagebox {
+            background: #fff;
         }
         .toc-block ul { margin: 0; padding-left: 1.1em; list-style: none; }
         .toc-block ul ul { padding-left: 1em; }
@@ -243,8 +240,8 @@
     {% endif %}
 
     {% if toc_html %}
+    <h1>Table of Contents</h1>
     <nav class="toc-block" aria-label="Table of contents">
-        <p class="toc-heading">Contents</p>
         {{ toc_html | safe }}
     </nav>
     {% endif %}

@@ -110,14 +110,6 @@
             display: inline-block;
             min-width: 260px;
         }
-        .toc-block .toc-heading {
-            font-size: 0.75em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #6a737d;
-            margin: 0 0 0.5rem;
-        }
         .toc-block ul {
             margin: 0;
             padding-left: 1.25em;
@@ -146,8 +138,8 @@
         {% endif %}
 
         {% if toc_html %}
+        <h1>Table of Contents</h1>
         <nav class="toc-block" aria-label="Table of contents">
-            <p class="toc-heading">Contents</p>
             {{ toc_html | safe }}
         </nav>
         {% endif %}

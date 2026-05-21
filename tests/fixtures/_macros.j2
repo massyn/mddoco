@@ -1,0 +1,7 @@
+{#
+    This file starts with _ so it is excluded from document scanning.
+    It can be imported into .md.j2 templates using Jinja2's import/include.
+#}
+{% macro badge(label, value) -%}
+**{{ label }}:** {{ value }}
+{%- endmacro %}

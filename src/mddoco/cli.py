@@ -5,6 +5,7 @@ import click
 
 from mddoco.converter import convert_files
 from mddoco.pdf import html_to_pdf
+from mddoco.preprocessor import load_json_context
 from mddoco.renderer import render_html
 from mddoco.scanner import find_markdown_files
 from mddoco.toc import combine_toc
@@ -62,7 +63,8 @@ def main(
     click.echo(f"Found {len(md_files)} markdown file(s).")
 
     try:
-        raw = convert_files(md_files, toc=toc, toc_depth=toc_depth)
+        context = load_json_context(input_path)
+        raw = convert_files(md_files, toc=toc, toc_depth=toc_depth, context=context)
     except Exception as exc:
         raise click.ClickException(str(exc)) from exc
     sections = [(p, html) for p, html, _ in raw]

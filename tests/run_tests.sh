@@ -457,10 +457,10 @@ run_test \
     "$OUT/vanilla/fixtures.html" \
     "$FIXTURES" --theme vanilla -o "$OUT/vanilla"
 
-check_not_contains \
-    "vanilla: no <style> block present" \
+check_contains \
+    "vanilla: table borders present" \
     "$OUT/vanilla/fixtures.html" \
-    '<style>'
+    'border: 1px solid #999'
 
 # ---------------------------------------------------------------------------
 # 24. paged-professional theme
@@ -486,7 +486,53 @@ check_contains \
     "Paged Professional Demo"
 
 # ---------------------------------------------------------------------------
-# 25. External theme path
+# 25. Jinja2 template (.md.j2) support
+# ---------------------------------------------------------------------------
+run_test \
+    ".md.j2 files included in directory scan" \
+    "$OUT/j2/fixtures.html" \
+    "$FIXTURES" -o "$OUT/j2"
+
+check_contains \
+    "j2 template: rendered project name from JSON" \
+    "$OUT/j2/fixtures.html" \
+    "mddoco"
+
+check_contains \
+    "j2 template: rendered author from JSON" \
+    "$OUT/j2/fixtures.html" \
+    "Phil Massyn"
+
+check_not_contains \
+    "j2 template: raw Jinja2 syntax not present in output" \
+    "$OUT/j2/fixtures.html" \
+    "{{ report.project }}"
+
+check_not_contains \
+    "_macros.j2 excluded from scan output" \
+    "$OUT/j2/fixtures.html" \
+    "SENTINEL_IGNORED_FILE"
+
+# ---------------------------------------------------------------------------
+# 26. Table of Contents heading change
+# ---------------------------------------------------------------------------
+run_test \
+    "TOC heading is h1 outside nav" \
+    "$OUT/toc_heading/fixtures.html" \
+    "$FIXTURES" --toc -o "$OUT/toc_heading"
+
+check_contains \
+    "TOC heading rendered as h1 Table of Contents" \
+    "$OUT/toc_heading/fixtures.html" \
+    "<h1>Table of Contents</h1>"
+
+check_not_contains \
+    "old toc-heading class no longer present" \
+    "$OUT/toc_heading/fixtures.html" \
+    'class="toc-heading"'
+
+# ---------------------------------------------------------------------------
+# 27. External theme path
 # ---------------------------------------------------------------------------
 run_test \
     "external theme path" \

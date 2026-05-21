@@ -1,0 +1,17 @@
+# Template Report
+
+This document was generated from a Jinja2 template (`.md.j2`) using JSON data.
+
+| Field | Value |
+|-------|-------|
+| Project | {{ report.project }} |
+| Version | {{ report.version }} |
+| Author | {{ report.author }} |
+
+## About Jinja Templates
+
+Place a `*.md.j2` file alongside your markdown files and it will be rendered
+with any `*.json` files in the same folder as template variables.
+
+The JSON filename (without extension) becomes the variable name — so
+`report.json` is available as `report` inside templates.
