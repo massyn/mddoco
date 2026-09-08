@@ -1,6 +1,8 @@
-import pytest
 from pathlib import Path
 
+import pytest
+
+import mddoco
 from mddoco.preprocessor import (
     _apply_semicolon_split,
     _parse_csv_line,
@@ -8,8 +10,15 @@ from mddoco.preprocessor import (
     load_csv_context,
 )
 
+# --- version ---
+
+
+def test_version():
+    assert mddoco.__version__ == "2.0.3"
+
 
 # --- _parse_csv_line ---
+
 
 def test_parse_csv_line_simple():
     assert _parse_csv_line("a,b,c") == [("a", False), ("b", False), ("c", False)]
@@ -37,12 +46,17 @@ def test_parse_csv_line_single_field():
 
 # --- _apply_semicolon_split ---
 
+
 def test_split_unquoted_with_semicolon():
     assert _apply_semicolon_split("python;flask", False) == ["python", "flask"]
 
 
 def test_split_trims_whitespace():
-    assert _apply_semicolon_split("python ; flask ; sql", False) == ["python", "flask", "sql"]
+    assert _apply_semicolon_split("python ; flask ; sql", False) == [
+        "python",
+        "flask",
+        "sql",
+    ]
 
 
 def test_no_split_when_quoted():
@@ -59,8 +73,11 @@ def test_single_element_after_split():
 
 # --- load_csv_context ---
 
+
 def test_load_csv_basic(tmp_path: Path):
-    (tmp_path / "people.csv").write_text("name,role\nAlice,Engineer\nBob,Manager\n", encoding="utf-8")
+    (tmp_path / "people.csv").write_text(
+        "name,role\nAlice,Engineer\nBob,Manager\n", encoding="utf-8"
+    )
     ctx = load_csv_context(tmp_path)
     assert ctx == {
         "people": [
@@ -71,7 +88,9 @@ def test_load_csv_basic(tmp_path: Path):
 
 
 def test_load_csv_semicolon_becomes_list(tmp_path: Path):
-    (tmp_path / "data.csv").write_text("name,skills\nAlice,python;flask\n", encoding="utf-8")
+    (tmp_path / "data.csv").write_text(
+        "name,skills\nAlice,python;flask\n", encoding="utf-8"
+    )
     ctx = load_csv_context(tmp_path)
     assert ctx["data"][0]["skills"] == ["python", "flask"]
 
@@ -110,6 +129,7 @@ def test_load_csv_from_file_path(tmp_path: Path):
 
 
 # --- load_context ---
+
 
 def test_load_context_merges_json_and_csv(tmp_path: Path):
     (tmp_path / "config.json").write_text('{"env": "prod"}', encoding="utf-8")

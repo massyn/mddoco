@@ -45,29 +45,29 @@ def _parse_csv_line(line: str) -> list[tuple[str, bool]]:
                 else:
                     parts.append(line[i])
                     i += 1
-            value = ''.join(parts)
-            while i < n and line[i] != ',':
+            value = "".join(parts)
+            while i < n and line[i] != ",":
                 i += 1
             fields.append((value, True))
         else:
             start = i
-            while i < n and line[i] != ',':
+            while i < n and line[i] != ",":
                 i += 1
             fields.append((line[start:i], False))
 
-        if i < n and line[i] == ',':
+        if i < n and line[i] == ",":
             i += 1
             if i >= n:
-                fields.append(('', False))
+                fields.append(("", False))
 
     return fields
 
 
 def _apply_semicolon_split(value: str, was_quoted: bool) -> str | list[str]:
     """Return value split on ';' unless the field was originally quoted."""
-    if was_quoted or ';' not in value:
+    if was_quoted or ";" not in value:
         return value
-    return [part.strip() for part in value.split(';')]
+    return [part.strip() for part in value.split(";")]
 
 
 def load_csv_context(input_path: Path) -> dict:
@@ -99,7 +99,7 @@ def load_csv_context(input_path: Path) -> dict:
                 if idx < len(fields):
                     value, was_quoted = fields[idx]
                 else:
-                    value, was_quoted = '', False
+                    value, was_quoted = "", False
                 row[key] = _apply_semicolon_split(value, was_quoted)
             rows.append(row)
 
@@ -114,7 +114,7 @@ def load_context(input_path: Path) -> dict:
     csv_ctx = load_csv_context(input_path)
     conflicts = set(json_ctx) & set(csv_ctx)
     if conflicts:
-        names = ', '.join(sorted(conflicts))
+        names = ", ".join(sorted(conflicts))
         raise ValueError(
             f"Context name conflict — both a .json and .csv exist for: {names}"
         )

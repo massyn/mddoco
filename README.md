@@ -6,17 +6,23 @@ A CLI tool that converts markdown files to a single HTML (or future PDF) documen
 
 ```bash
 pip install mddoco
-playwright install chromium
 ```
 
 Or for development:
 
 ```bash
 pip install -e .
-playwright install chromium
 ```
 
-> Playwright (Chromium) is required for PDF output only. HTML output works without it.
+> **Playwright (Chromium) is required for PDF output only.** HTML output works without it.
+> The `playwright` Python package is installed automatically, but the Chromium
+> browser it drives is not. The first time you render a PDF, mddoco downloads
+> Chromium for you (~150 MB, one time). To do it ahead of time, or if the
+> automatic download fails, run it yourself:
+>
+> ```bash
+> playwright install chromium
+> ```
 
 ## Usage
 

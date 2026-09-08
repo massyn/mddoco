@@ -15,31 +15,40 @@ from mddoco.writer import write_output
 @click.command()
 @click.argument("input_path", type=click.Path(exists=True, path_type=Path))
 @click.option(
-    "--output", "-o", "output_path",
-    default=".", show_default=True,
+    "--output",
+    "-o",
+    "output_path",
+    default=".",
+    show_default=True,
     type=click.Path(path_type=Path),
     help="Output directory, or explicit output file path.",
 )
 @click.option(
-    "--format", "-f", "fmt",
-    default="html", show_default=True,
+    "--format",
+    "-f",
+    "fmt",
+    default="html",
+    show_default=True,
     type=click.Choice(["html", "pdf"], case_sensitive=False),
     help="Output format.",
 )
 @click.option("--title", "-t", default=None, help="Document title.")
 @click.option(
     "--theme",
-    default="default", show_default=True,
+    default="default",
+    show_default=True,
     help="Theme name to use for rendering.",
 )
 @click.option(
     "--toc/--no-toc",
-    default=False, show_default=True,
+    default=False,
+    show_default=True,
     help="Generate a table of contents.",
 )
 @click.option(
     "--toc-depth",
-    default=3, show_default=True,
+    default=3,
+    show_default=True,
     type=click.IntRange(1, 6),
     help="Maximum heading depth included in the TOC.",
 )

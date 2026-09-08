@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mddoco"
-version = "2.0.1"
+version = "2.0.3"
 description = "Markdown to HTML/PDF document converter"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -16,6 +16,13 @@ dependencies = [
     "matplotlib>=3.7",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "black>=24.0",
+    "ruff>=0.16,<0.17",
+]
+
 [project.scripts]
 mddoco = "mddoco.cli:main"
 
@@ -25,9 +32,16 @@ where = ["src"]
 [tool.setuptools.package-data]
 mddoco = ["themes/*.html"]
 
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
 [tool.ruff]
 src = ["src"]
 line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
