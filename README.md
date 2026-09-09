@@ -2,6 +2,8 @@
 
 A CLI tool that converts markdown files to a single HTML (or future PDF) document.
 
+[![Publish to PyPI](https://github.com/massyn/mddoco/actions/workflows/ci.yml/badge.svg)](https://github.com/massyn/mddoco/actions/workflows/ci.yml) 
+![PyPI Version](https://img.shields.io/pypi/v/mddoco) ![PyPI Downloads](https://img.shields.io/pypi/dd/mddoco)
 ## Installation
 
 ```bash
@@ -66,6 +68,24 @@ mddoco ./docs --title "My Project" --toc --output ./out
 ## Output
 
 All matched markdown files are combined into a single HTML document in the output directory. The filename is derived from the input folder or file name.
+
+## Examples
+
+The [`examples/`](examples/) directory contains four runnable input folders, each
+covering a different feature:
+
+| Folder | Demonstrates |
+|--------|--------------|
+| [`examples/01_basic`](examples/01_basic) | Plain Markdown, file ordering, underscore-excluded files |
+| [`examples/02_rich_content`](examples/02_rich_content) | Mermaid diagrams, syntax highlighting, `graph` charts |
+| [`examples/03_themed_report`](examples/03_themed_report) | Themes and a table of contents |
+| [`examples/04_jinja_data`](examples/04_jinja_data) | Jinja2 templates with JSON and CSV data files |
+
+```bash
+mddoco examples/03_themed_report --theme professional --title "Q3 Platform Review" --toc --output ./out
+```
+
+See [`examples/README.md`](examples/README.md) for the full list of commands.
 
 ## Jinja2 templates
 

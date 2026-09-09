@@ -1,0 +1,13 @@
+{% import "_macros.j2" as m %}
+# Project Summary
+
+Values below come from `project.json`, injected as the `project` variable.
+
+| Field | Value |
+|-------|-------|
+{{ m.field("Name", project.name) }}
+{{ m.field("Version", project.version) }}
+{{ m.field("Owner", project.owner) }}
+{{ m.field("Repository", project.repository) }}
+
+The `field` macro is defined once in `_macros.j2` and reused for every row.

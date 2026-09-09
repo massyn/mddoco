@@ -1,0 +1,16 @@
+{% from "_macros.j2" import skill_list %}
+# Team
+
+Rows come from `team.csv`. Each row is a dict keyed by the CSV header.
+
+| Name | Role | Skills |
+|------|------|--------|
+{% for member in team -%}
+| {{ member.name }} | {{ member.role }} | {{ skill_list(member.skills) }} |
+{% endfor %}
+
+## Semicolon splitting
+
+A cell containing `;` is loaded as a list, so `python;flask;sql` becomes three
+values. A quoted cell such as `"go, grpc"` is kept as a single string — Bob's
+skills above are not split.
