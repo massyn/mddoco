@@ -1,0 +1,11 @@
+{#
+  Shared Jinja2 macros. The leading underscore keeps this file out of the
+  document scan; templates pull it in with {% import %}.
+#}
+{% macro field(label, value) -%}
+| {{ label }} | {{ value }} |
+{%- endmacro %}
+
+{% macro skill_list(skills) -%}
+{% if skills is string %}{{ skills }}{% else %}{{ skills | join(", ") }}{% endif %}
+{%- endmacro %}

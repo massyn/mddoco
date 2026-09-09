@@ -4,10 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mddoco"
-version = "2.0.3"
+version = "2.1.0"
 description = "Markdown to HTML/PDF document converter"
 readme = "README.md"
 requires-python = ">=3.10"
+authors = [
+    { name = "Phil Massyn", email = "phil.massyn@icloud.com" },
+]
 dependencies = [
     "click>=8.0",
     "markdown>=3.5",
@@ -22,6 +25,11 @@ dev = [
     "black>=24.0",
     "ruff>=0.16,<0.17",
 ]
+
+[project.urls]
+Homepage = "https://github.com/massyn/mddoco"
+Repository = "https://github.com/massyn/mddoco"
+Issues = "https://github.com/massyn/mddoco/issues"
 
 [project.scripts]
 mddoco = "mddoco.cli:main"

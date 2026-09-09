@@ -125,7 +125,13 @@
             text-align: center;
             margin: 1.5em 0;
         }
+        pre code.hljs { background: transparent; padding: 0; }
     </style>
+    {% if has_code %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11/styles/github.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    {% endif %}
     {% if has_mermaid %}
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>mermaid.initialize({ startOnLoad: true, theme: 'default' });</script>

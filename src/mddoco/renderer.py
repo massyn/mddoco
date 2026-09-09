@@ -10,6 +10,7 @@ def render_html(
     toc_html: str | None = None,
     theme: str = "default",
     has_mermaid: bool = False,
+    has_code: bool = False,
 ) -> str:
     """Render a full HTML document from (path, html_fragment) pairs."""
     theme_path = Path(theme)
@@ -30,4 +31,5 @@ def render_html(
         toc_html=toc_html,
         sections=sections,
         has_mermaid=has_mermaid,
+        has_code=has_code,
     )

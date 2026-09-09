@@ -4,6 +4,7 @@
 set -uo pipefail
 
 FIXTURES="fixtures"
+EXAMPLES="../examples"
 OUT="output"
 PASS=0
 FAIL=0
@@ -174,6 +175,11 @@ check_contains \
     "mermaid.js CDN loaded" \
     "$OUT/mermaid/03_diagrams.html" \
     "mermaid.min.js"
+
+check_not_contains \
+    "highlight.js not loaded when there are no code blocks" \
+    "$OUT/mermaid/03_diagrams.html" \
+    "highlight.min.js"
 
 # ---------------------------------------------------------------------------
 # 9. No mermaid → CDN not loaded
@@ -543,6 +549,82 @@ check_contains \
     "external theme: custom sentinel present in output" \
     "$OUT/external_theme/fixtures.html" \
     "CUSTOM_THEME_SENTINEL"
+
+# ---------------------------------------------------------------------------
+# 28. Example projects render — the examples/ folder shipped in the repo.
+#     Output is kept under output/examples/ for inspection.
+# ---------------------------------------------------------------------------
+EX_OUT="$OUT/examples"
+
+run_test \
+    "example 01_basic renders (title + TOC)" \
+    "$EX_OUT/01_basic/01_basic.html" \
+    "$EXAMPLES/01_basic" --title "Basic Example" --toc -o "$EX_OUT/01_basic"
+
+check_not_contains \
+    "example 01_basic: underscore-prefixed file excluded" \
+    "$EX_OUT/01_basic/01_basic.html" \
+    "DO_NOT_RENDER_THIS_FILE"
+
+check_contains \
+    "example 01_basic: title rendered" \
+    "$EX_OUT/01_basic/01_basic.html" \
+    "Basic Example"
+
+check_contains \
+    "example 01_basic: TOC block present" \
+    "$EX_OUT/01_basic/01_basic.html" \
+    "toc-block"
+
+run_test \
+    "example 02_rich_content renders" \
+    "$EX_OUT/02_rich_content/02_rich_content.html" \
+    "$EXAMPLES/02_rich_content" --title "Rich Content" -o "$EX_OUT/02_rich_content"
+
+check_contains \
+    "example 02_rich_content: mermaid.js CDN loaded" \
+    "$EX_OUT/02_rich_content/02_rich_content.html" \
+    "mermaid.min.js"
+
+check_contains \
+    "example 02_rich_content: graph block rendered as SVG" \
+    "$EX_OUT/02_rich_content/02_rich_content.html" \
+    '<svg'
+
+check_contains \
+    "example 02_rich_content: highlight.js loaded for code blocks" \
+    "$EX_OUT/02_rich_content/02_rich_content.html" \
+    "highlight.min.js"
+
+check_contains \
+    "example 02_rich_content: highlight.js stylesheet loaded" \
+    "$EX_OUT/02_rich_content/02_rich_content.html" \
+    "github.min.css"
+
+run_test \
+    "example 03_themed_report renders (professional theme + TOC)" \
+    "$EX_OUT/03_themed_report/03_themed_report.html" \
+    "$EXAMPLES/03_themed_report" --theme professional --title "Q3 Platform Review" --toc -o "$EX_OUT/03_themed_report"
+
+check_contains \
+    "example 03_themed_report: TOC block present" \
+    "$EX_OUT/03_themed_report/03_themed_report.html" \
+    "toc-block"
+
+run_test \
+    "example 04_jinja_data renders" \
+    "$EX_OUT/04_jinja_data/04_jinja_data.html" \
+    "$EXAMPLES/04_jinja_data" --title "Jinja Data Demo" -o "$EX_OUT/04_jinja_data"
+
+check_not_contains \
+    "example 04_jinja_data: no unrendered Jinja syntax" \
+    "$EX_OUT/04_jinja_data/04_jinja_data.html" \
+    '{{ project.name }}'
+
+check_contains \
+    "example 04_jinja_data: semicolon-split CSV cell became a list" \
+    "$EX_OUT/04_jinja_data/04_jinja_data.html" \
+    "python, flask, sql"
 
 # ---------------------------------------------------------------------------
 # Summary

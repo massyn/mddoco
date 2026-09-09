@@ -1,0 +1,5 @@
+name,role,skills
+Alice,Lead,python;flask;sql
+Bob,Backend,"go, grpc"
+Carol,Frontend,typescript;react;css
+Dave,Data,python;pandas

@@ -79,6 +79,7 @@ def main(
     sections = [(p, html) for p, html, _ in raw]
     toc_html = combine_toc([t for _, _, t in raw]) if toc else None
     has_mermaid = any('<div class="mermaid">' in html for _, html in sections)
+    has_code = any("<pre><code" in html for _, html in sections)
 
     # Resolve output directory and filename.
     # If output_path has a suffix, treat it as an explicit file path.
@@ -99,6 +100,7 @@ def main(
             toc_html=toc_html or None,
             theme=theme,
             has_mermaid=has_mermaid,
+            has_code=has_code,
         )
     except ValueError as exc:
         raise click.ClickException(str(exc)) from exc
