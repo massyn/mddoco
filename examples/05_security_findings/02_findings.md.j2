@@ -1,0 +1,41 @@
+{% set order = ["Critical", "High", "Medium", "Low"] %}
+{% set counts = [] %}
+{% for sev in order %}{% set _ = counts.append(findings | selectattr("severity", "equalto", sev) | list | length) %}{% endfor %}
+# Security Findings
+
+## All findings
+
+| ID | Severity | Finding |
+|----|----------|---------|
+{% for f in findings -%}
+| {{ f.id }} | {{ f.severity }} | {{ f.text }} |
+{% endfor %}
+
+## Count by severity
+
+The rows are grouped in the template with Jinja's `selectattr` filter.
+
+| Severity | Count |
+|----------|-------|
+{% for sev in order -%}
+| {{ sev }} | {{ counts[loop.index0] }} |
+{% endfor %}| **Total** | **{{ findings | length }}** |
+
+## Chart
+
+The same grouping fed into a native `graph` block. The `x` labels and `Count`
+values are emitted as JSON with the `tojson` filter.
+
+```graph
+{
+  "title": "Findings by severity",
+  "show_legend": false,
+  "data": {
+    "x": {{ order | tojson }},
+    "Count": {{ counts | tojson }}
+  },
+  "series": [
+    { "label": "Count", "type": "bar", "colour": "#c0392b" }
+  ]
+}
+```
