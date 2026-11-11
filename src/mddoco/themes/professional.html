@@ -190,6 +190,7 @@
             .page-wrap { margin-bottom: 0; border-bottom: none; }
             .content { padding-bottom: 0; }
         }
+        {% block variant_styles %}{% endblock %}
     </style>
     {% if has_code %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github.min.css" integrity="sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L" crossorigin="anonymous">

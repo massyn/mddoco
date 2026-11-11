@@ -160,7 +160,7 @@ Use `{% import %}` or `{% from ... import %}` to make macros from another file c
 
 ## Themes
 
-Themes are self-contained Jinja2 HTML files with embedded CSS. Pass a theme name with `--theme NAME`.
+Themes are Jinja2 HTML files with embedded CSS. Pass a theme name with `--theme NAME`. The `-wide` and `site-*` themes extend another theme (`default.html`, `_site_base.html` and so on), so to customise one of those, copy the theme it extends as well.
 
 | Theme | Description |
 |---|---|
