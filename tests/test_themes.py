@@ -4,7 +4,7 @@ import pytest
 from click.testing import CliRunner
 
 from mddoco.cli import main
-from mddoco.renderer import render_html, theme_supports_pdf
+from mddoco.renderer import check_theme_format, render_html, theme_supports_pdf
 
 SITE_THEMES = ["site", "site-professional", "site-dark", "site-terminal"]
 
@@ -23,6 +23,15 @@ def test_external_theme_can_opt_out_of_pdf(tmp_path):
     theme = tmp_path / "mine.html"
     theme.write_text("{% set pdf_supported = false %}<html></html>", encoding="utf-8")
     assert theme_supports_pdf(str(theme)) is False
+
+
+def test_check_theme_format_allows_html_for_screen_only_theme():
+    check_theme_format("site", "html")
+
+
+def test_check_theme_format_rejects_pdf_for_screen_only_theme():
+    with pytest.raises(ValueError, match="screen-only"):
+        check_theme_format("site", "pdf")
 
 
 def test_unknown_theme_raises():
@@ -49,5 +58,6 @@ def test_site_theme_renders_sections_and_title(theme):
         theme=theme,
     )
     assert 'data-site-title="My Site"' in html
-    assert "<h1>Alpha</h1>" in html and "<h1>Beta</h1>" in html
+    assert "<h1>Alpha</h1>" in html
+    assert "<h1>Beta</h1>" in html
     assert 'class="site-nav-list"' in html

@@ -30,6 +30,15 @@ def theme_supports_pdf(theme: str) -> bool:
     return getattr(load_theme(theme).module, "pdf_supported", True) is not False
 
 
+def check_theme_format(theme: str, fmt: str) -> None:
+    """Raise ValueError when the theme is missing or cannot produce ``fmt``."""
+    if fmt == "pdf" and not theme_supports_pdf(theme):
+        raise ValueError(
+            f"Theme '{theme}' is screen-only and cannot produce PDF output. "
+            "Use --format html, or choose another theme for PDF."
+        )
+
+
 def render_html(
     sections: list[tuple[Path, str]],
     title: str | None = None,
