@@ -1,0 +1,65 @@
+{#- site-terminal: green-phosphor terminal look, monospace throughout. Just
+    for fun. Layout and behaviour live in _site_base.html. -#}
+{% extends "_site_base.html" %}
+{% set pdf_supported = false %}
+
+{% block theme_styles %}
+        :root {
+            --site-font: 'Cascadia Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace;
+            --site-mono: var(--site-font);
+            --site-bg: #0a0f0a;
+            --site-text: #b8f5b8;
+            --site-muted: #6fae6f;
+            --site-accent: #39ff7a;
+            --site-border: #1f4d2a;
+            --site-code-bg: #102114;
+            --site-pre-bg: #050905;
+            --site-pre-text: #b8f5b8;
+            --site-table-head: #102114;
+            --site-nav-bg: #050905;
+            --site-nav-text: #8fe08f;
+            --site-nav-muted: #5c9a5c;
+            --site-nav-hover: #0f1f12;
+            --site-nav-active-bg: #12301a;
+            --site-nav-active-text: #39ff7a;
+            --site-nav-border: #1f4d2a;
+            --site-radius: 0;
+        }
+        body {
+            font-size: 15px;
+            text-shadow: 0 0 2px rgba(57, 255, 122, 0.35);
+            background-image: repeating-linear-gradient(
+                to bottom, transparent 0, transparent 2px, rgba(0, 0, 0, 0.18) 3px);
+        }
+        h1, h2, h3, h4 { color: var(--site-accent); font-weight: 700; }
+        h1::before { content: "# "; opacity: 0.6; }
+        h2::before { content: "## "; opacity: 0.6; }
+        h2 { border-bottom-style: dashed; }
+        .site-brand::before { content: "~/ "; color: var(--site-nav-muted); }
+        .site-brand::after {
+            content: "_";
+            margin-left: 0.15em;
+            animation: site-blink 1.1s steps(1) infinite;
+        }
+        .site-nav-list > li > a::before { content: "> "; opacity: 0; }
+        .site-nav-list > li.active > a::before,
+        .site-nav-list > li > a:hover::before { opacity: 1; }
+        .site-nav-list > li.active > a { font-weight: 700; }
+        a { text-decoration-style: dotted; }
+        blockquote { border-left-style: double; }
+        hr { border-top-style: dashed; }
+        @keyframes site-blink { 50% { opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) {
+            .site-brand::after { animation: none; }
+        }
+        @media print {
+            body { background: #ffffff; color: #000000; text-shadow: none; }
+            h1, h2, h3, h4 { color: #000000; }
+        }
+{% endblock %}
+
+{% block hljs_stylesheet %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github-dark.min.css" integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH" crossorigin="anonymous">
+{% endblock %}
+
+{% block mermaid_theme %}dark{% endblock %}

@@ -1,0 +1,8 @@
+{#- site: minimalist multi-page website in a single HTML file. Layout and
+    behaviour live in _site_base.html; this theme uses its defaults. -#}
+{% extends "_site_base.html" %}
+{% set pdf_supported = false %}
+
+{% block theme_styles %}
+        .site-nav { background: var(--site-bg); }
+{% endblock %}

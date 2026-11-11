@@ -1,0 +1,9 @@
+id,severity,text
+F-001,Critical,Unauthenticated remote code execution in the report upload endpoint
+F-002,High,SQL injection in the finding search query
+F-003,High,Session tokens are not rotated after a privilege change
+F-004,Medium,Missing rate limiting on the login form
+F-005,Medium,Verbose stack traces returned to the client on error
+F-006,Medium,Outdated TLS ciphers accepted by the load balancer
+F-007,Low,Security headers (CSP, HSTS) absent on static responses
+F-008,Low,Session cookie set without the SameSite attribute

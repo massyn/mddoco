@@ -6,7 +6,7 @@ import click
 from mddoco.converter import convert_files
 from mddoco.pdf import html_to_pdf
 from mddoco.preprocessor import load_context
-from mddoco.renderer import render_html
+from mddoco.renderer import check_theme_format, render_html
 from mddoco.scanner import find_markdown_files
 from mddoco.toc import combine_toc
 from mddoco.writer import write_output
@@ -63,6 +63,11 @@ def main(
 ) -> None:
     """Convert markdown files in INPUT_PATH to a single document."""
     logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.WARNING)
+
+    try:
+        check_theme_format(theme, fmt)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
 
     try:
         md_files = find_markdown_files(input_path)

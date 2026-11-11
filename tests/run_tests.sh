@@ -350,10 +350,11 @@ check_contains \
     "$OUT/default_wide/fixtures.html" \
     'width: 100%'
 
-check_not_contains \
-    "default-wide: no max-width constraint on container" \
+# The base theme's 860px limit is still in the CSS; the -wide override after it lifts it.
+check_contains \
+    "default-wide: container max-width lifted" \
     "$OUT/default_wide/fixtures.html" \
-    'max-width: 860px'
+    '.container { max-width: none; margin: 0; }'
 
 # ---------------------------------------------------------------------------
 # 18. professional-wide theme
@@ -368,10 +369,11 @@ check_contains \
     "$OUT/professional_wide/fixtures.html" \
     'class="doc-header"'
 
-check_not_contains \
-    "professional-wide: no max-width constraint on page-wrap" \
+# The base theme's 900px limit is still in the CSS; the -wide override after it lifts it.
+check_contains \
+    "professional-wide: page-wrap max-width lifted" \
     "$OUT/professional_wide/fixtures.html" \
-    'max-width: 900px'
+    'max-width: none;'
 
 # ---------------------------------------------------------------------------
 # 19. dark theme
@@ -409,10 +411,11 @@ check_contains \
     "$OUT/dark_wide/fixtures.html" \
     '--bg:        #0d1117'
 
-check_not_contains \
-    "dark-wide: no max-width constraint on container" \
+# The base theme's 860px limit is still in the CSS; the -wide override after it lifts it.
+check_contains \
+    "dark-wide: container max-width lifted" \
     "$OUT/dark_wide/fixtures.html" \
-    'max-width: 860px'
+    '.container { max-width: none; margin: 0; }'
 
 # ---------------------------------------------------------------------------
 # 21. academic theme
@@ -450,10 +453,11 @@ check_contains \
     "$OUT/academic_wide/fixtures.html" \
     'Georgia'
 
-check_not_contains \
-    "academic-wide: no max-width constraint on container" \
+# The base theme's 720px limit is still in the CSS; the -wide override after it lifts it.
+check_contains \
+    "academic-wide: container max-width lifted" \
     "$OUT/academic_wide/fixtures.html" \
-    'max-width: 720px'
+    '.container { max-width: none; margin: 0; }'
 
 # ---------------------------------------------------------------------------
 # 23. vanilla theme
@@ -625,6 +629,83 @@ check_contains \
     "example 04_jinja_data: semicolon-split CSV cell became a list" \
     "$EX_OUT/04_jinja_data/04_jinja_data.html" \
     "python, flask, sql"
+
+run_test \
+    "example 05_security_findings renders" \
+    "$EX_OUT/05_security_findings/05_security_findings.html" \
+    "$EXAMPLES/05_security_findings" --title "Security Findings" -o "$EX_OUT/05_security_findings"
+
+check_not_contains \
+    "example 05_security_findings: no unrendered Jinja syntax" \
+    "$EX_OUT/05_security_findings/05_security_findings.html" \
+    "{{ counts"
+
+check_contains \
+    "example 05_security_findings: CSV row rendered in the findings table" \
+    "$EX_OUT/05_security_findings/05_security_findings.html" \
+    "F-001"
+
+check_contains \
+    "example 05_security_findings: template-grouped data charted as SVG" \
+    "$EX_OUT/05_security_findings/05_security_findings.html" \
+    '<svg'
+
+# ---------------------------------------------------------------------------
+# 29. Print layout — no blank PDF pages. Space left below the content in
+#     print spills onto an extra blank sheet; for Paged.js the PDF must hold
+#     exactly the pages Paged.js laid out (not captured early, not overflowing).
+# ---------------------------------------------------------------------------
+PRINT_OUT="$OUT/print_layout"
+THEMES_DIR="../src/mddoco/themes"
+
+for theme_file in "$THEMES_DIR"/*.html; do
+    theme="$(basename "$theme_file" .html)"
+    [[ "$theme" == "paged-professional" || "$theme" == _* ]] && continue
+    html="$PRINT_OUT/$theme.html"; reason=""
+    if mddoco "$EXAMPLES/03_themed_report" --theme "$theme" --title "Print Layout" --toc -o "$html" >/dev/null 2>&1 \
+        && reason="$(python print_layout.py trailing-space "$html" 2>&1)"; then
+        pass "print layout: $theme leaves no trailing space"
+    else
+        fail "print layout: $theme leaves trailing space — ${reason:-mddoco failed}"
+    fi
+done
+
+for example in 02_rich_content 03_themed_report; do
+    base="$PRINT_OUT/paged-professional-$example"; reason=""
+    if mddoco "$EXAMPLES/$example" --theme paged-professional --title "Print Layout" --toc -o "$base.html" >/dev/null 2>&1 \
+        && mddoco "$EXAMPLES/$example" --theme paged-professional --title "Print Layout" --toc --format pdf -o "$base.pdf" >/dev/null 2>&1 \
+        && reason="$(python print_layout.py paged-pages "$base.html" "$base.pdf" 2>&1)"; then
+        pass "print layout: paged-professional $example PDF matches Paged.js pages"
+    else
+        fail "print layout: paged-professional $example PDF mismatch — ${reason:-mddoco failed}"
+    fi
+done
+
+# ---------------------------------------------------------------------------
+# 30. Site themes — one HTML file that behaves like a small website: each H1
+#     is a page in the side nav. Screen-only, so PDF output is refused.
+#     site_fixtures has three H1s and a Mermaid diagram on a page that is
+#     hidden at load (drawn on load, it would collapse to an empty box).
+# ---------------------------------------------------------------------------
+SITE_OUT="$OUT/site"
+
+for theme in site site-professional site-dark site-terminal; do
+    html="$SITE_OUT/$theme.html"; reason=""
+    if mddoco site_fixtures --theme "$theme" --title "Site Demo" -o "$html" >/dev/null 2>&1 \
+        && reason="$(python site_behaviour.py "$html" 3 2>&1)"; then
+        pass "site: $theme builds one page per H1 with working nav and diagrams"
+    else
+        fail "site: $theme — ${reason:-mddoco failed}"
+    fi
+
+    if mddoco "$FIXTURES/single.md" --theme "$theme" --format pdf -o "$SITE_OUT/$theme.pdf" >/dev/null 2>&1; then
+        fail "site: $theme accepted --format pdf"
+    elif [[ -e "$SITE_OUT/$theme.pdf" ]]; then
+        fail "site: $theme wrote a PDF despite refusing"
+    else
+        pass "site: $theme refuses --format pdf"
+    fi
+done
 
 # ---------------------------------------------------------------------------
 # Summary

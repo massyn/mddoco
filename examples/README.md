@@ -11,6 +11,7 @@ files at the top level).
 | [`02_rich_content`](02_rich_content) | Mermaid diagrams, syntax-highlighted code blocks, native `graph` charts |
 | [`03_themed_report`](03_themed_report) | Themes and a table of contents — the same content styled as a report |
 | [`04_jinja_data`](04_jinja_data) | `.md.j2` templates, importing `.json` and `.csv` data files, shared macros |
+| [`05_security_findings`](05_security_findings) | A `.csv` data file grouped in the template and fed into a native `graph` chart |
 
 ## Quick start
 
@@ -30,6 +31,9 @@ mddoco examples/03_themed_report \
 
 # 4. Jinja2 templates with JSON and CSV data
 mddoco examples/04_jinja_data --title "Jinja Data Demo" --output ./out
+
+# 5. CSV data grouped in the template and charted
+mddoco examples/05_security_findings --title "Security Findings" --output ./out
 ```
 
 Each command writes a single HTML file into `./out/`. Add `--format pdf` to any
