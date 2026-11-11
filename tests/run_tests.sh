@@ -350,10 +350,11 @@ check_contains \
     "$OUT/default_wide/fixtures.html" \
     'width: 100%'
 
-check_not_contains \
-    "default-wide: no max-width constraint on container" \
+# The base theme's 860px limit is still in the CSS; the -wide override after it lifts it.
+check_contains \
+    "default-wide: container max-width lifted" \
     "$OUT/default_wide/fixtures.html" \
-    'max-width: 860px'
+    '.container { max-width: none; margin: 0; }'
 
 # ---------------------------------------------------------------------------
 # 18. professional-wide theme
@@ -368,10 +369,11 @@ check_contains \
     "$OUT/professional_wide/fixtures.html" \
     'class="doc-header"'
 
-check_not_contains \
-    "professional-wide: no max-width constraint on page-wrap" \
+# The base theme's 900px limit is still in the CSS; the -wide override after it lifts it.
+check_contains \
+    "professional-wide: page-wrap max-width lifted" \
     "$OUT/professional_wide/fixtures.html" \
-    'max-width: 900px'
+    'max-width: none;'
 
 # ---------------------------------------------------------------------------
 # 19. dark theme
@@ -409,10 +411,11 @@ check_contains \
     "$OUT/dark_wide/fixtures.html" \
     '--bg:        #0d1117'
 
-check_not_contains \
-    "dark-wide: no max-width constraint on container" \
+# The base theme's 860px limit is still in the CSS; the -wide override after it lifts it.
+check_contains \
+    "dark-wide: container max-width lifted" \
     "$OUT/dark_wide/fixtures.html" \
-    'max-width: 860px'
+    '.container { max-width: none; margin: 0; }'
 
 # ---------------------------------------------------------------------------
 # 21. academic theme
@@ -450,10 +453,11 @@ check_contains \
     "$OUT/academic_wide/fixtures.html" \
     'Georgia'
 
-check_not_contains \
-    "academic-wide: no max-width constraint on container" \
+# The base theme's 720px limit is still in the CSS; the -wide override after it lifts it.
+check_contains \
+    "academic-wide: container max-width lifted" \
     "$OUT/academic_wide/fixtures.html" \
-    'max-width: 720px'
+    '.container { max-width: none; margin: 0; }'
 
 # ---------------------------------------------------------------------------
 # 23. vanilla theme
