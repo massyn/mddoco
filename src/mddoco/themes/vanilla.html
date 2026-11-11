@@ -8,7 +8,8 @@
         table { border-collapse: collapse; }
         th, td { border: 1px solid #999; padding: 0.3em 0.6em; }
         th { background: #eee; }
-        pre code.hljs { background: transparent; padding: 0; }
+        /* body raises specificity above highlight.js's own pre code.hljs rule, which loads later */
+        body pre code.hljs { background: transparent; padding: 0; }
     </style>
     {% if has_code %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github.min.css" integrity="sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L" crossorigin="anonymous">

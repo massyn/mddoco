@@ -216,7 +216,8 @@
 
         /* ── Mermaid ────────────────────────────────────────────────── */
         .mermaid { text-align: center; margin: 1.5em 0; }
-        pre code.hljs { background: transparent; padding: 0; }
+        /* body raises specificity above highlight.js's own pre code.hljs rule, which loads later */
+        body pre code.hljs { background: transparent; padding: 0; }
     </style>
     <!-- On-screen preview only: grey desk with a shadow round each page.
          media="screen" keeps it out of print, where it would push every page

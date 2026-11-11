@@ -124,7 +124,8 @@
             text-align: center;
             margin: 1.5em 0;
         }
-        pre code.hljs { background: transparent; padding: 0; }
+        /* body raises specificity above highlight.js's own pre code.hljs rule, which loads later */
+        body pre code.hljs { background: transparent; padding: 0; }
         /* Print: no trailing space after the content, which would spill
            onto an extra blank page when the content ends near a page edge */
         @media print {
