@@ -145,6 +145,11 @@
             margin: 1.5em 0;
         }
         pre code.hljs { background: transparent; padding: 0; }
+        /* Print: no trailing space after the content, which would spill
+           onto an extra blank page when the content ends near a page edge */
+        @media print {
+            body { padding-bottom: 0; }
+        }
     </style>
     {% if has_code %}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github-dark.min.css" integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH" crossorigin="anonymous">

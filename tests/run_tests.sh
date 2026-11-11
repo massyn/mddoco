@@ -647,6 +647,37 @@ check_contains \
     '<svg'
 
 # ---------------------------------------------------------------------------
+# 29. Print layout — no blank PDF pages. Space left below the content in
+#     print spills onto an extra blank sheet; for Paged.js the PDF must hold
+#     exactly the pages Paged.js laid out (not captured early, not overflowing).
+# ---------------------------------------------------------------------------
+PRINT_OUT="$OUT/print_layout"
+THEMES_DIR="../src/mddoco/themes"
+
+for theme_file in "$THEMES_DIR"/*.html; do
+    theme="$(basename "$theme_file" .html)"
+    [[ "$theme" == "paged-professional" ]] && continue
+    html="$PRINT_OUT/$theme.html"; reason=""
+    if mddoco "$EXAMPLES/03_themed_report" --theme "$theme" --title "Print Layout" --toc -o "$html" >/dev/null 2>&1 \
+        && reason="$(python print_layout.py trailing-space "$html" 2>&1)"; then
+        pass "print layout: $theme leaves no trailing space"
+    else
+        fail "print layout: $theme leaves trailing space — ${reason:-mddoco failed}"
+    fi
+done
+
+for example in 02_rich_content 03_themed_report; do
+    base="$PRINT_OUT/paged-professional-$example"; reason=""
+    if mddoco "$EXAMPLES/$example" --theme paged-professional --title "Print Layout" --toc -o "$base.html" >/dev/null 2>&1 \
+        && mddoco "$EXAMPLES/$example" --theme paged-professional --title "Print Layout" --toc --format pdf -o "$base.pdf" >/dev/null 2>&1 \
+        && reason="$(python print_layout.py paged-pages "$base.html" "$base.pdf" 2>&1)"; then
+        pass "print layout: paged-professional $example PDF matches Paged.js pages"
+    else
+        fail "print layout: paged-professional $example PDF mismatch — ${reason:-mddoco failed}"
+    fi
+done
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo "─────────────────────────────────────────────"

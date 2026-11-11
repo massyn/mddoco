@@ -11,6 +11,24 @@ _INSTALL_HINT = (
     "automatically. Run: playwright install chromium"
 )
 
+# Paged.js paginates on its own once the DOM is ready, and its page container
+# exists before any pages are added to it. The only reliable completion signal
+# is the previewer's "rendered" event, so this script, run before any page
+# script, subscribes to it the moment Paged.js assigns window.PagedPolyfill.
+_PAGED_RENDERED_HOOK = """
+(() => {
+    let previewer;
+    Object.defineProperty(window, "PagedPolyfill", {
+        configurable: true,
+        get: () => previewer,
+        set: (value) => {
+            previewer = value;
+            value.on("rendered", () => { window.__mddocoPagedRendered = true; });
+        },
+    });
+})();
+"""
+
 
 def html_to_pdf(html_content: str, dest: Path) -> None:
     """Render an HTML string to a PDF file using a headless Chromium browser.
@@ -55,12 +73,13 @@ def _render(sync_playwright, source: Path, dest: Path) -> None:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
+        page.add_init_script(_PAGED_RENDERED_HOOK)
         page.goto(source.as_uri(), wait_until="networkidle")
         # If Paged.js is present, wait for it to finish paginating before
         # capturing — networkidle fires before its JS layout pass completes.
         page.wait_for_function(
             "typeof window.PagedPolyfill === 'undefined'"
-            " || !!document.querySelector('.pagedjs_pages')"
+            " || window.__mddocoPagedRendered === true"
         )
         page.pdf(path=str(dest), format="A4", print_background=True)
         browser.close()

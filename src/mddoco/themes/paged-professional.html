@@ -57,15 +57,7 @@
             font-size: 10.5pt;
             line-height: 1.7;
             color: #263238;
-            background: #dde0e8;
             margin: 0;
-            padding: 2rem;
-        }
-
-        /* Shadow around each page when viewed on screen */
-        .pagedjs_page {
-            box-shadow: 0 3px 16px rgba(0, 0, 0, 0.2);
-            margin-bottom: 2.5rem !important;
         }
 
         /* ── Title page ─────────────────────────────────────────────── */
@@ -226,16 +218,40 @@
         .mermaid { text-align: center; margin: 1.5em 0; }
         pre code.hljs { background: transparent; padding: 0; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.js" integrity="sha384-JkjBt3FPbcQ3WBc3qp+maUIw8YLoZxNNj8H+tn73mljkC1ba8aEPWlgwfCRPpAxV" crossorigin="anonymous"></script>
+    <!-- On-screen preview only: grey desk with a shadow round each page.
+         media="screen" keeps it out of print, where it would push every page
+         past the A4 sheet, and tells Paged.js to leave it untouched. -->
+    <style media="screen">
+        body {
+            background: #dde0e8;
+            padding: 2rem;
+        }
+        .pagedjs_page {
+            box-shadow: 0 3px 16px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2.5rem !important;
+        }
+    </style>
     {% if has_code %}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github.min.css" integrity="sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github-dark.min.css" integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/highlight.min.js" integrity="sha384-wjfDDhOPPdjtva8vWBhWeVprSpmxisEu5aYT3q1JyACqXpdKpo3PWZTMVq24MBix" crossorigin="anonymous"></script>
-    <script>hljs.highlightAll();</script>
     {% endif %}
     {% if has_mermaid %}
     <script src="https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js" integrity="sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2" crossorigin="anonymous"></script>
-    <script>mermaid.initialize({ startOnLoad: true, theme: 'neutral' });</script>
+    <script>mermaid.initialize({ startOnLoad: false, theme: 'neutral' });</script>
     {% endif %}
+    <script>
+        // Paged.js copies the document into pages once the DOM is ready, so
+        // code highlighting and Mermaid diagrams must be finished before then,
+        // otherwise the pages hold the raw, unrendered source.
+        window.PagedConfig = {
+            auto: true,
+            before: async () => {
+                {% if has_code %}document.querySelectorAll('pre code').forEach((el) => hljs.highlightElement(el));{% endif %}
+                {% if has_mermaid %}await mermaid.run();{% endif %}
+            },
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/pagedjs@0.4.3/dist/paged.polyfill.js" integrity="sha384-JkjBt3FPbcQ3WBc3qp+maUIw8YLoZxNNj8H+tn73mljkC1ba8aEPWlgwfCRPpAxV" crossorigin="anonymous"></script>
 </head>
 <body>
     {% if title %}
