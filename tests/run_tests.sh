@@ -626,6 +626,26 @@ check_contains \
     "$EX_OUT/04_jinja_data/04_jinja_data.html" \
     "python, flask, sql"
 
+run_test \
+    "example 05_security_findings renders" \
+    "$EX_OUT/05_security_findings/05_security_findings.html" \
+    "$EXAMPLES/05_security_findings" --title "Security Findings" -o "$EX_OUT/05_security_findings"
+
+check_not_contains \
+    "example 05_security_findings: no unrendered Jinja syntax" \
+    "$EX_OUT/05_security_findings/05_security_findings.html" \
+    "{{ counts"
+
+check_contains \
+    "example 05_security_findings: CSV row rendered in the findings table" \
+    "$EX_OUT/05_security_findings/05_security_findings.html" \
+    "F-001"
+
+check_contains \
+    "example 05_security_findings: template-grouped data charted as SVG" \
+    "$EX_OUT/05_security_findings/05_security_findings.html" \
+    '<svg'
+
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------

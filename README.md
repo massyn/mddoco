@@ -71,7 +71,7 @@ All matched markdown files are combined into a single HTML document in the outpu
 
 ## Examples
 
-The [`examples/`](examples/) directory contains four runnable input folders, each
+The [`examples/`](examples/) directory contains five runnable input folders, each
 covering a different feature:
 
 | Folder | Demonstrates |
@@ -80,6 +80,7 @@ covering a different feature:
 | [`examples/02_rich_content`](examples/02_rich_content) | Mermaid diagrams, syntax highlighting, `graph` charts |
 | [`examples/03_themed_report`](examples/03_themed_report) | Themes and a table of contents |
 | [`examples/04_jinja_data`](examples/04_jinja_data) | Jinja2 templates with JSON and CSV data files |
+| [`examples/05_security_findings`](examples/05_security_findings) | CSV data grouped in a Jinja2 template and fed into a `graph` chart |
 
 ```bash
 mddoco examples/03_themed_report --theme professional --title "Q3 Platform Review" --toc --output ./out
