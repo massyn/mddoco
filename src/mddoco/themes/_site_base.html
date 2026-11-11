@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {#- Shared base for the site-* themes: one HTML file that behaves like a small
+        website. Each H1 becomes a page, listed in a side nav; only one page is
+        shown at a time, addressed by the URL hash (#/page or #/page/heading).
+        Child themes set colours through the --site-* variables and may add CSS
+        in the theme_styles block. Screen-only, so PDF output is refused. -#}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title or "Documentation" }}</title>
+    <style>
+        :root {
+            --site-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --site-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            --site-bg: #ffffff;
+            --site-text: #24292e;
+            --site-muted: #6a737d;
+            --site-accent: #0366d6;
+            --site-border: #e1e4e8;
+            --site-code-bg: #f6f8fa;
+            --site-pre-bg: #f6f8fa;
+            --site-pre-text: #24292e;
+            --site-table-head: #f6f8fa;
+            --site-nav-bg: #fafbfc;
+            --site-nav-text: #24292e;
+            --site-nav-muted: #6a737d;
+            --site-nav-hover: #eef1f4;
+            --site-nav-active-bg: #e8f0fb;
+            --site-nav-active-text: #0366d6;
+            --site-nav-border: #e1e4e8;
+            --site-nav-width: 270px;
+            --site-content-width: 820px;
+            --site-radius: 6px;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-padding-top: 1.5rem; }
+        body {
+            margin: 0;
+            font-family: var(--site-font);
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--site-text);
+            background: var(--site-bg);
+        }
+
+        /* ── Side nav ─────────────────────────────────────────────── */
+        .site-nav {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: var(--site-nav-width);
+            overflow-y: auto;
+            background: var(--site-nav-bg);
+            color: var(--site-nav-text);
+            border-right: 1px solid var(--site-nav-border);
+            padding: 1.5rem 0 2rem;
+            z-index: 20;
+        }
+        .site-brand {
+            display: block;
+            padding: 0 1.5rem 1.25rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid var(--site-nav-border);
+            font-size: 1.1rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: var(--site-nav-text);
+            text-decoration: none;
+        }
+        .site-nav ul { list-style: none; margin: 0; padding: 0; }
+        .site-nav a { text-decoration: none; }
+        .site-nav-list > li > a {
+            display: block;
+            padding: 0.4rem 1.5rem;
+            color: var(--site-nav-text);
+            font-size: 0.92rem;
+            line-height: 1.4;
+            border-left: 3px solid transparent;
+        }
+        .site-nav-list > li > a:hover { background: var(--site-nav-hover); }
+        .site-nav-list > li.active > a {
+            background: var(--site-nav-active-bg);
+            color: var(--site-nav-active-text);
+            border-left-color: var(--site-nav-active-text);
+            font-weight: 600;
+        }
+        .site-subnav { display: none; padding: 0.2rem 0 0.4rem; }
+        .site-nav-list > li.active > .site-subnav { display: block; }
+        .site-subnav a {
+            display: block;
+            padding: 0.2rem 1.5rem 0.2rem 2.4rem;
+            color: var(--site-nav-muted);
+            font-size: 0.84rem;
+            line-height: 1.4;
+        }
+        .site-subnav a:hover { color: var(--site-nav-active-text); }
+
+        /* ── Top bar (small screens only) ─────────────────────────── */
+        .site-topbar { display: none; }
+        .site-menu-toggle {
+            font: inherit;
+            font-size: 1.3rem;
+            line-height: 1;
+            padding: 0.35rem 0.6rem;
+            border: 1px solid var(--site-nav-border);
+            border-radius: var(--site-radius);
+            background: var(--site-nav-bg);
+            color: var(--site-nav-text);
+            cursor: pointer;
+        }
+
+        /* ── Content ──────────────────────────────────────────────── */
+        .site-main {
+            margin-left: var(--site-nav-width);
+            padding: 2.5rem 3rem 4rem;
+        }
+        .site-content { max-width: var(--site-content-width); margin: 0 auto; }
+
+        /* Before the script runs (or without JavaScript) everything shows as
+           one long document; once split, only the active page is visible. */
+        .site-js .site-page { display: none; }
+        .site-js .site-page.active { display: block; }
+
+        h1, h2, h3, h4, h5, h6 { line-height: 1.25; font-weight: 600; margin: 1.6em 0 0.5em; }
+        .site-page > h1:first-child { margin-top: 0; }
+        h1 { font-size: 2.1em; }
+        h2 { font-size: 1.5em; padding-bottom: 0.25em; border-bottom: 1px solid var(--site-border); }
+        h3 { font-size: 1.2em; }
+        p { margin: 0.8em 0; }
+        a { color: var(--site-accent); }
+        img, svg { max-width: 100%; height: auto; }
+        ul, ol { padding-left: 1.5em; }
+        li { margin: 0.25em 0; }
+        hr { border: none; border-top: 1px solid var(--site-border); margin: 2.5rem 0; }
+
+        code {
+            font-family: var(--site-mono);
+            font-size: 0.875em;
+            background: var(--site-code-bg);
+            padding: 0.15em 0.4em;
+            border-radius: 4px;
+        }
+        pre {
+            background: var(--site-pre-bg);
+            color: var(--site-pre-text);
+            border: 1px solid var(--site-border);
+            border-radius: var(--site-radius);
+            padding: 1rem 1.2rem;
+            overflow-x: auto;
+            line-height: 1.5;
+        }
+        pre code { background: none; padding: 0; font-size: 0.85em; color: inherit; }
+        /* Scoped to beat highlight.js's own pre code.hljs rule, which loads later */
+        .site-content pre code.hljs { background: transparent; padding: 0; }
+
+        table { border-collapse: collapse; width: 100%; margin: 1.2em 0; display: block; overflow-x: auto; }
+        th, td { border: 1px solid var(--site-border); padding: 0.5em 0.9em; text-align: left; }
+        th { background: var(--site-table-head); font-weight: 600; }
+
+        blockquote {
+            margin: 1.2em 0;
+            padding: 0.6em 1.1em;
+            border-left: 4px solid var(--site-accent);
+            background: var(--site-code-bg);
+            color: var(--site-muted);
+            border-radius: 0 var(--site-radius) var(--site-radius) 0;
+        }
+        blockquote p { margin: 0.3em 0; }
+
+        .mermaid { text-align: center; margin: 1.5em 0; }
+
+        /* ── Previous / next ──────────────────────────────────────── */
+        .site-pager {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 3.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--site-border);
+        }
+        .site-pager a {
+            display: block;
+            max-width: 48%;
+            padding: 0.7rem 1rem;
+            border: 1px solid var(--site-border);
+            border-radius: var(--site-radius);
+            text-decoration: none;
+            line-height: 1.35;
+        }
+        .site-pager a:hover { border-color: var(--site-accent); }
+        .site-pager .next { margin-left: auto; text-align: right; }
+        .site-pager small { display: block; color: var(--site-muted); font-size: 0.78rem; }
+
+        /* ── Small screens: nav slides in from the left ───────────── */
+        @media (max-width: 900px) {
+            .site-topbar {
+                display: flex;
+                align-items: center;
+                gap: 0.8rem;
+                position: sticky;
+                top: 0;
+                padding: 0.6rem 1rem;
+                background: var(--site-nav-bg);
+                border-bottom: 1px solid var(--site-nav-border);
+                z-index: 10;
+            }
+            .site-topbar-title { font-weight: 600; color: var(--site-nav-text); }
+            .site-nav { transform: translateX(-100%); transition: transform 0.2s ease; }
+            .site-nav-open .site-nav { transform: none; box-shadow: 0 0 24px rgba(0, 0, 0, 0.25); }
+            .site-main { margin-left: 0; padding: 1.5rem 1rem 3rem; }
+        }
+
+        /* ── Print: every page in sequence, no navigation ─────────── */
+        @media print {
+            .site-nav, .site-topbar, .site-pager { display: none !important; }
+            .site-main { margin: 0; padding: 0; }
+            .site-js .site-page { display: block; }
+            .site-page + .site-page { break-before: page; }
+        }
+
+        {% block theme_styles %}{% endblock %}
+    </style>
+    {% if has_code %}
+    {% block hljs_stylesheet %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github.min.css" integrity="sha384-eFTL69TLRZTkNfYZOLM+G04821K1qZao/4QLJbet1pP4tcF+fdXq/9CdqAbWRl/L" crossorigin="anonymous">
+    {% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/highlight.min.js" integrity="sha384-wjfDDhOPPdjtva8vWBhWeVprSpmxisEu5aYT3q1JyACqXpdKpo3PWZTMVq24MBix" crossorigin="anonymous"></script>
+    <script>hljs.highlightAll();</script>
+    {% endif %}
+    {% if has_mermaid %}
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js" integrity="sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2" crossorigin="anonymous"></script>
+    {#- Diagrams on hidden pages would be measured at zero size, so each one is
+        drawn when its page is first shown instead of on load. -#}
+    <script>mermaid.initialize({ startOnLoad: false, theme: '{% block mermaid_theme %}default{% endblock %}' });</script>
+    {% endif %}
+</head>
+<body data-site-title="{{ title or 'Documentation' }}">
+    <header class="site-topbar">
+        <button class="site-menu-toggle" type="button" aria-label="Menu" aria-controls="site-nav" aria-expanded="false">&#9776;</button>
+        <span class="site-topbar-title">{{ title or "Documentation" }}</span>
+    </header>
+
+    <nav id="site-nav" class="site-nav" aria-label="Site">
+        <a class="site-brand" href="#/">{{ title or "Documentation" }}</a>
+        <ul class="site-nav-list"></ul>
+    </nav>
+
+    <main class="site-main">
+        <div class="site-content">
+            {% for path, body in sections %}
+            <section class="site-source">{{ body | safe }}</section>
+            {% endfor %}
+        </div>
+    </main>
+
+    <script>
+    (() => {
+        const content = document.querySelector(".site-content");
+        const navList = document.querySelector(".site-nav-list");
+        const siteTitle = document.body.dataset.siteTitle;
+        const usedIds = new Set([...document.querySelectorAll("[id]")].map((el) => el.id));
+
+        const uniqueId = (text, fallback) => {
+            const base = text.toLowerCase().trim()
+                .replace(/[^\w\s-]/g, "").replace(/[\s_]+/g, "-")
+                .replace(/-+/g, "-").replace(/^-|-$/g, "") || fallback;
+            let id = base;
+            for (let n = 2; usedIds.has(id); n++) id = `${base}-${n}`;
+            usedIds.add(id);
+            return id;
+        };
+
+        // Split the content into pages: a new page starts at every H1, and
+        // anything before the first H1 becomes an introduction page.
+        const pages = [];
+        let page = null;
+        const startPage = (title, heading) => {
+            const el = document.createElement("article");
+            el.className = "site-page";
+            el.id = heading ? (heading.id || uniqueId(title, "page")) : uniqueId("introduction", "page");
+            if (heading) heading.id = el.id + "-title";
+            page = { title, slug: el.id, el };
+            pages.push(page);
+        };
+        for (const section of [...content.querySelectorAll(":scope > .site-source")]) {
+            for (const node of [...section.childNodes]) {
+                const isBlank = node.nodeType === Node.TEXT_NODE && !node.textContent.trim();
+                if (node.nodeName === "H1") startPage(node.textContent.trim(), node);
+                else if (!page) {
+                    if (isBlank) continue;
+                    startPage(siteTitle, null);
+                }
+                page.el.appendChild(node);
+            }
+            section.remove();
+        }
+        if (!pages.length) return;
+
+        // Each page lists its H2s in the nav while it is the active page.
+        pages.forEach((p, i) => {
+            content.appendChild(p.el);
+            const li = document.createElement("li");
+            li.innerHTML = `<a href="#/${p.slug}"></a>`;
+            li.firstChild.textContent = p.title;
+            const headings = p.el.querySelectorAll("h2");
+            if (headings.length) {
+                const sub = document.createElement("ul");
+                sub.className = "site-subnav";
+                headings.forEach((h) => {
+                    if (!h.id) h.id = uniqueId(h.textContent, "section");
+                    const item = document.createElement("li");
+                    item.innerHTML = `<a href="#/${p.slug}/${h.id}"></a>`;
+                    item.firstChild.textContent = h.textContent.trim();
+                    sub.appendChild(item);
+                });
+                li.appendChild(sub);
+            }
+            p.li = li;
+            navList.appendChild(li);
+
+            const pager = document.createElement("nav");
+            pager.className = "site-pager";
+            pager.setAttribute("aria-label", "Pages");
+            [[pages[i - 1], "prev", "Previous"], [pages[i + 1], "next", "Next"]].forEach(([target, cls, label]) => {
+                if (!target) return;
+                const a = document.createElement("a");
+                a.className = cls;
+                a.href = `#/${target.slug}`;
+                a.innerHTML = `<small>${label}</small>`;
+                a.appendChild(document.createTextNode(target.title));
+                pager.appendChild(a);
+            });
+            p.el.appendChild(pager);
+        });
+        document.documentElement.classList.add("site-js");
+
+        const show = (target, anchor) => {
+            pages.forEach((p) => {
+                const active = p === target;
+                p.el.classList.toggle("active", active);
+                p.li.classList.toggle("active", active);
+            });
+            document.title = target.title === siteTitle ? siteTitle : `${target.title} · ${siteTitle}`;
+            if (window.mermaid) {
+                const pending = target.el.querySelectorAll(".mermaid:not([data-processed])");
+                if (pending.length) mermaid.run({ nodes: pending });
+            }
+            if (anchor) anchor.scrollIntoView();
+            else window.scrollTo(0, 0);
+        };
+
+        // Routes: #/page and #/page/heading-id. A plain #id (a link written in
+        // the markdown, or a TOC entry) opens whichever page holds that id.
+        const route = () => {
+            const hash = decodeURIComponent(location.hash.slice(1));
+            if (hash.startsWith("/")) {
+                const [slug, anchorId] = hash.slice(1).split("/");
+                const target = pages.find((p) => p.slug === slug) || pages[0];
+                show(target, anchorId ? document.getElementById(anchorId) : null);
+            } else {
+                const anchor = hash && document.getElementById(hash);
+                const target = anchor && pages.find((p) => p.el.contains(anchor));
+                show(target || pages[0], target ? anchor : null);
+            }
+            document.body.classList.remove("site-nav-open");
+            toggle.setAttribute("aria-expanded", "false");
+        };
+
+        const toggle = document.querySelector(".site-menu-toggle");
+        toggle.addEventListener("click", () => {
+            const open = document.body.classList.toggle("site-nav-open");
+            toggle.setAttribute("aria-expanded", String(open));
+        });
+
+        window.addEventListener("hashchange", route);
+        route();
+    })();
+    </script>
+</body>
+</html>

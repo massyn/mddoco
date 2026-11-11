@@ -1,0 +1,67 @@
+{#- site-professional: corporate navy sidebar and blue accents, matching the
+    professional theme. Layout and behaviour live in _site_base.html. -#}
+{% extends "_site_base.html" %}
+{% set pdf_supported = false %}
+
+{% block theme_styles %}
+        :root {
+            --site-font: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --site-text: #263238;
+            --site-muted: #546e7a;
+            --site-accent: #2d6cbe;
+            --site-border: #d5dde3;
+            --site-code-bg: #f1f4f8;
+            --site-pre-bg: #f4f6f8;
+            --site-table-head: #1a3a5c;
+            --site-nav-bg: #1a3a5c;
+            --site-nav-text: #e3ebf5;
+            --site-nav-muted: #9fb6d1;
+            --site-nav-hover: #22496f;
+            --site-nav-active-bg: #2d6cbe;
+            --site-nav-active-text: #ffffff;
+            --site-nav-border: #12304d;
+            --site-nav-width: 285px;
+            --site-content-width: 880px;
+            --site-radius: 4px;
+        }
+        body { background: #f4f6f8; font-size: 15.5px; }
+        .site-content {
+            background: #ffffff;
+            border: 1px solid var(--site-border);
+            border-radius: var(--site-radius);
+            box-shadow: 0 2px 10px rgba(26, 58, 92, 0.08);
+            padding: 2.5rem 3rem;
+        }
+        .site-brand {
+            color: #ffffff;
+            font-size: 1.15rem;
+            letter-spacing: 0.01em;
+            border-bottom-color: rgba(255, 255, 255, 0.12);
+        }
+        .site-brand::after {
+            content: "";
+            display: block;
+            width: 2.5rem;
+            height: 3px;
+            margin-top: 0.7rem;
+            background: #5b9bec;
+            border-radius: 2px;
+        }
+        .site-nav-list > li.active > a { border-left-color: #9cc4f5; }
+        .site-subnav a:hover { color: #ffffff; }
+        .site-topbar-title { color: #ffffff; }
+        .site-menu-toggle { border-color: rgba(255, 255, 255, 0.3); }
+        h1 { color: #1a3a5c; font-weight: 700; padding-bottom: 0.3em; border-bottom: 3px solid var(--site-accent); }
+        h2 { color: var(--site-accent); }
+        h3 { color: #1a3a5c; }
+        th { color: #ffffff; border-color: #2a4f78; }
+        tr:nth-child(even) td { background: #e8f0fb; }
+        .site-pager a { background: #f8fafc; }
+        @media (max-width: 900px) {
+            .site-content { padding: 1.5rem 1.25rem; }
+        }
+        @media print {
+            body { background: #ffffff; }
+            .site-content { border: none; box-shadow: none; padding: 0; }
+        }
+{% endblock %}

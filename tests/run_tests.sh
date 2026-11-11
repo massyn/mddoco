@@ -656,7 +656,7 @@ THEMES_DIR="../src/mddoco/themes"
 
 for theme_file in "$THEMES_DIR"/*.html; do
     theme="$(basename "$theme_file" .html)"
-    [[ "$theme" == "paged-professional" ]] && continue
+    [[ "$theme" == "paged-professional" || "$theme" == _* ]] && continue
     html="$PRINT_OUT/$theme.html"; reason=""
     if mddoco "$EXAMPLES/03_themed_report" --theme "$theme" --title "Print Layout" --toc -o "$html" >/dev/null 2>&1 \
         && reason="$(python print_layout.py trailing-space "$html" 2>&1)"; then
@@ -674,6 +674,32 @@ for example in 02_rich_content 03_themed_report; do
         pass "print layout: paged-professional $example PDF matches Paged.js pages"
     else
         fail "print layout: paged-professional $example PDF mismatch — ${reason:-mddoco failed}"
+    fi
+done
+
+# ---------------------------------------------------------------------------
+# 30. Site themes — one HTML file that behaves like a small website: each H1
+#     is a page in the side nav. Screen-only, so PDF output is refused.
+#     site_fixtures has three H1s and a Mermaid diagram on a page that is
+#     hidden at load (drawn on load, it would collapse to an empty box).
+# ---------------------------------------------------------------------------
+SITE_OUT="$OUT/site"
+
+for theme in site site-professional site-dark site-terminal; do
+    html="$SITE_OUT/$theme.html"; reason=""
+    if mddoco site_fixtures --theme "$theme" --title "Site Demo" -o "$html" >/dev/null 2>&1 \
+        && reason="$(python site_behaviour.py "$html" 3 2>&1)"; then
+        pass "site: $theme builds one page per H1 with working nav and diagrams"
+    else
+        fail "site: $theme — ${reason:-mddoco failed}"
+    fi
+
+    if mddoco "$FIXTURES/single.md" --theme "$theme" --format pdf -o "$SITE_OUT/$theme.pdf" >/dev/null 2>&1; then
+        fail "site: $theme accepted --format pdf"
+    elif [[ -e "$SITE_OUT/$theme.pdf" ]]; then
+        fail "site: $theme wrote a PDF despite refusing"
+    else
+        pass "site: $theme refuses --format pdf"
     fi
 done
 

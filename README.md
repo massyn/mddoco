@@ -174,13 +174,41 @@ Themes are self-contained Jinja2 HTML files with embedded CSS. Pass a theme name
 | `academic-wide` | Same as `academic` but full viewport width |
 | `vanilla` | Minimal HTML with no styling — useful for testing or custom CSS |
 | `paged-professional` | Corporate style with Paged.js pagination for print-ready PDFs |
+| `site` | Website layout: side nav with one page per H1, minimalist styling (HTML only) |
+| `site-professional` | Same as `site` with a navy sidebar and card layout (HTML only) |
+| `site-dark` | Same as `site` on a dark background (HTML only) |
+| `site-terminal` | Same as `site` as a green-phosphor terminal, just for fun (HTML only) |
 
 All themes support:
 
 - Optional document title
-- Optional table of contents
+- Optional table of contents (the `site-*` themes use their side nav instead)
 - [Mermaid.js](https://mermaid.js.org) diagram support (loaded only when diagrams are present)
 - Graph diagram blocks
+
+### Site themes
+
+The `site-*` themes turn the output into a small website while keeping it a single HTML file: no web server needed, and it still works offline or as an email attachment.
+
+```bash
+mddoco ./docs --theme site --title "Team Handbook" --output ./out
+```
+
+- Every H1 starts a new page, and each page is listed in the side nav. Anything before the first H1 becomes an introduction page.
+- The current page's H2 headings are listed under it in the nav.
+- Only one page shows at a time, with previous/next links at the bottom. Each page has its own address (`handbook.html#/onboarding`, or `#/onboarding/first-week` for a heading), so the back button, bookmarks and shared links work.
+- On narrow screens the nav moves behind a menu button.
+- They are screen-only: `--format pdf` is refused. Printing from the browser still prints every page in sequence.
+
+### Screen-only custom themes
+
+A custom theme can refuse PDF output by declaring this at the top level of its template:
+
+```jinja
+{% set pdf_supported = false %}
+```
+
+`--format pdf` with that theme then exits with an error instead of producing a PDF.
 
 ### Graph diagrams
 

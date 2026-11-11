@@ -1,0 +1,37 @@
+{#- site-dark: dark background with a blue accent, matching the dark theme.
+    Layout and behaviour live in _site_base.html. -#}
+{% extends "_site_base.html" %}
+{% set pdf_supported = false %}
+
+{% block theme_styles %}
+        :root {
+            --site-bg: #0d1117;
+            --site-text: #e6edf3;
+            --site-muted: #8b949e;
+            --site-accent: #58a6ff;
+            --site-border: #30363d;
+            --site-code-bg: #1f2630;
+            --site-pre-bg: #161b22;
+            --site-pre-text: #e6edf3;
+            --site-table-head: #161b22;
+            --site-nav-bg: #010409;
+            --site-nav-text: #c9d1d9;
+            --site-nav-muted: #8b949e;
+            --site-nav-hover: #161b22;
+            --site-nav-active-bg: #1f3b5c;
+            --site-nav-active-text: #58a6ff;
+            --site-nav-border: #21262d;
+        }
+        h1, h2, h3 { color: #cdd9e5; }
+        tr:nth-child(even) td { background: #161b22; }
+        .site-pager a { background: #161b22; }
+        @media print {
+            body { background: #ffffff; color: #000000; }
+        }
+{% endblock %}
+
+{% block hljs_stylesheet %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.12.0/styles/github-dark.min.css" integrity="sha384-wH75j6z1lH97ZOpMOInqhgKzFkAInZPPSPlZpYKYTOqsaizPvhQZmAtLcPKXpLyH" crossorigin="anonymous">
+{% endblock %}
+
+{% block mermaid_theme %}dark{% endblock %}
