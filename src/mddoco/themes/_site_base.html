@@ -8,6 +8,8 @@
         in the theme_styles block. Screen-only, so PDF output is refused. -#}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if generator %}<meta name="generator" content="{{ generator }}">{% endif %}
+    {% if generated %}<meta name="date" content="{{ generated }}">{% endif %}
     <title>{{ title or "Documentation" }}</title>
     <style>
         :root {

@@ -1,7 +1,10 @@
+from datetime import datetime
 from importlib.resources import files
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, Template, TemplateNotFound
+
+from mddoco import __version__
 
 
 def load_theme(theme: str) -> Template:
@@ -54,4 +57,6 @@ def render_html(
         sections=sections,
         has_mermaid=has_mermaid,
         has_code=has_code,
+        generator=f"mddoco {__version__}",
+        generated=datetime.now().astimezone().isoformat(timespec="seconds"),
     )
