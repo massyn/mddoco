@@ -8,7 +8,7 @@ from mddoco.pdf import html_to_pdf
 from mddoco.preprocessor import load_context
 from mddoco.renderer import check_theme_format, render_html
 from mddoco.scanner import find_markdown_files
-from mddoco.toc import combine_toc
+from mddoco.toc import build_toc
 from mddoco.writer import write_output
 
 
@@ -82,7 +82,7 @@ def main(
     except Exception as exc:
         raise click.ClickException(str(exc)) from exc
     sections = [(p, html) for p, html, _ in raw]
-    toc_html = combine_toc([t for _, _, t in raw]) if toc else None
+    toc_html = build_toc([e for _, _, entries in raw for e in entries]) if toc else None
     has_mermaid = any('<div class="mermaid">' in html for _, html in sections)
     has_code = any("<pre><code" in html for _, html in sections)
 
