@@ -14,7 +14,7 @@ from mddoco.preprocessor import (
 
 
 def test_version():
-    assert mddoco.__version__ == "2.2.0"
+    assert mddoco.__version__ == "2.2.1"
 
 
 # --- _parse_csv_line ---

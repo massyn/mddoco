@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% if generator %}<meta name="generator" content="{{ generator }}">{% endif %}
+    {% if generated %}<meta name="date" content="{{ generated }}">{% endif %}
     <title>{% if title %}{{ title }}{% else %}Document{% endif %}</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
@@ -108,8 +110,7 @@
             border-radius: 6px;
             padding: 1rem 1.5rem;
             margin: 1.5rem 0 2.5rem;
-            display: inline-block;
-            min-width: 260px;
+            display: block;
         }
         .toc-block ul {
             margin: 0;
@@ -118,6 +119,7 @@
         }
         .toc-block ul ul { padding-left: 1em; }
         .toc-block li { margin: 0.2em 0; }
+        .toc-block > ul > li > a { font-weight: 700; }
         .toc-block a { color: #0366d6; font-size: 0.9em; }
 
         /* Mermaid diagrams */
