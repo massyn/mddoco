@@ -15,6 +15,18 @@ class _Node:
     entry: TocEntry | None
     children: list["_Node"] = field(default_factory=list)
 
+    def to_html(self) -> str:
+        """Render this node's link (if any) followed by its children as a <ul>."""
+        link = (
+            f'<a href="#{self.entry.anchor}">{self.entry.label}</a>'
+            if self.entry
+            else ""
+        )
+        if not self.children:
+            return link
+        items = "\n".join(f"<li>{child.to_html()}</li>" for child in self.children)
+        return f"{link}<ul>\n{items}\n</ul>"
+
 
 def flatten_tokens(tokens: list[dict]) -> list[TocEntry]:
     """Flatten Python-Markdown ``toc_tokens`` into entries in document order.
@@ -48,16 +60,4 @@ def build_toc(entries: list[TocEntry]) -> str:
         (stack[-1] if stack else root).children.append(node)
         stack.append(node)
 
-    def render(nodes: list[_Node]) -> str:
-        items = []
-        for node in nodes:
-            link = (
-                f'<a href="#{node.entry.anchor}">{node.entry.label}</a>'
-                if node.entry
-                else ""
-            )
-            nested = render(node.children) if node.children else ""
-            items.append(f"<li>{link}{nested}</li>")
-        return "<ul>\n" + "\n".join(items) + "\n</ul>"
-
-    return render(root.children) if root.children else ""
+    return root.to_html()
