@@ -9,6 +9,13 @@ from mddoco.preprocessor import render_j2
 from mddoco.toc import TocEntry, flatten_tokens
 
 
+def read_markdown(path: Path, context: dict | None = None) -> str:
+    """Return a file's Markdown text, rendering .md.j2 templates with Jinja2."""
+    if path.suffix.lower() == ".j2":
+        return render_j2(path, context or {})
+    return path.read_text(encoding="utf-8")
+
+
 def convert_file(
     path: Path,
     toc: bool = False,
@@ -21,10 +28,7 @@ def convert_file(
     then the resulting Markdown is converted as normal.
     Returns (html_body, toc_entries). toc_entries is empty when toc=False.
     """
-    if path.suffix.lower() == ".j2":
-        text = render_j2(path, context or {})
-    else:
-        text = path.read_text(encoding="utf-8")
+    text = read_markdown(path, context)
 
     extensions = ["tables", "fenced_code", "attr_list"]
     extension_configs: dict = {}

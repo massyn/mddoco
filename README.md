@@ -32,6 +32,10 @@ pip install -e .
 > [D2 diagrams](#d2-diagrams).** It is a separate program, not a Python
 > package, so `pip` does not install it. See [Installing the D2 CLI](#installing-the-d2-cli).
 
+> **The `pandoc` command-line tool is required only for [Word output](#word-output)
+> (`--format docx`).** It is a separate program, not a Python package. See
+> [Installing Pandoc](#installing-pandoc).
+
 ## Usage
 
 ```
@@ -45,10 +49,10 @@ mddoco [OPTIONS] INPUT_PATH
 | Option | Short | Default | Description |
 |---|---|---|---|
 | `--output PATH` | `-o` | `.` | Output directory, or an explicit file path if it has an extension (`-o out/report.html`) |
-| `--format [html\|pdf]` | `-f` | `html` | Output format (PDF needs Playwright; the `site-*` themes are HTML only) |
+| `--format [html\|pdf\|docx]` | `-f` | `html` | Output format (PDF needs Playwright; Word needs Pandoc and Playwright; the `site-*` themes are HTML only) |
 | `--title TEXT` | `-t` | _(none)_ | Document title shown at the top of the page |
-| `--theme NAME` | | `default` | Theme to use for rendering |
-| `--toc / --no-toc` | | off | Generate a table of contents |
+| `--theme NAME` | | `default` | Theme to use for rendering (HTML and PDF only; Word output rejects any theme but `default`) |
+| `--toc / --no-toc` | | off | Generate a table of contents (ignored, with a warning, for Word output) |
 | `--toc-depth N` | | `3` | Maximum heading depth included in the TOC (1–6) |
 
 ### Examples
@@ -73,7 +77,7 @@ mddoco ./docs --title "My Project" --toc --output ./out
 
 ## Output
 
-All matched markdown files are combined into a single document in the output directory, as HTML (the default) or PDF (`--format pdf`). The filename is derived from the input folder or file name, with the `.html` or `.pdf` extension. If `--output` ends in an extension, it is used as the exact output file path instead.
+All matched markdown files are combined into a single document in the output directory, as HTML (the default), PDF (`--format pdf`) or Word (`--format docx`). The filename is derived from the input folder or file name, with the `.html`, `.pdf` or `.docx` extension. If `--output` ends in an extension, it is used as the exact output file path instead.
 
 ## Examples
 
@@ -336,3 +340,34 @@ d2 --version
 - **CI:** install `d2` in the workflow before building documents that contain D2 diagrams, for example by downloading a pinned release archive as this repository's own [workflow](.github/workflows/ci.yml) does.
 
 If `d2` is missing, mddoco stops with an error pointing to the install guide, and only when it finds a `d2` block.
+
+## Word output
+
+`--format docx` writes a Word document:
+
+```bash
+mddoco docs/ --format docx --title "Security Findings" -o out/
+```
+
+mddoco renders any Jinja2 templates, draws each `graph`, `d2` and `mermaid` block to a PNG image, and passes the result to [Pandoc](https://pandoc.org). Every table then gets grid borders, cell padding and a bold, shaded header row. The borders are written onto each table, because Google Docs keeps them reliably that way.
+
+- **Requirements:** `pandoc` on your `PATH`, and Playwright with Chromium (needed to draw diagrams; installed the same way as for PDF output). `d2` is needed only when a document has a `d2` block.
+- **Mermaid needs network access.** It is drawn in Chromium with the pinned Mermaid.js loaded from a CDN. `graph` and `d2` diagrams are drawn offline.
+- **No table of contents.** Insert one in Word, or in Google Docs with Insert > Table of contents. `--toc` is ignored with a warning.
+- **No themes.** The themes are browser HTML and CSS, so `--theme` with anything other than `default` is an error. The document uses Word's default styles.
+- **Code blocks** keep their syntax colours.
+
+### Google Docs
+
+There is no Google Docs file format. To get a Google Doc, upload the `.docx` to Google Drive, then right-click it and choose Open with > Google Docs, or open it and choose File > Save as Google Docs.
+
+### Installing Pandoc
+
+| Platform | Command |
+|---|---|
+| macOS (Homebrew) | `brew install pandoc` |
+| Debian and Ubuntu | `sudo apt-get install pandoc` |
+| Windows (Chocolatey) | `choco install pandoc` |
+| Any platform | Download an installer from [pandoc.org/installing.html](https://pandoc.org/installing.html) |
+
+Check it with `pandoc --version`. If `pandoc` is missing, mddoco stops with an error pointing to the install page.
