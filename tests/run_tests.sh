@@ -763,6 +763,54 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# 32. Word output — Pandoc plus Playwright-drawn diagram images
+#     (skipped when pandoc or playwright is missing). docx_fixtures is kept
+#     apart from fixtures so the directory-wide runs never need them.
+# ---------------------------------------------------------------------------
+DOCX_FIXTURES="docx_fixtures"
+
+if command -v pandoc &>/dev/null && python -c "import playwright" 2>/dev/null; then
+    DOCX="$OUT/docx/docx_fixtures.docx"
+    run_test \
+        "docx: table, graph and code file" \
+        "$DOCX" \
+        "$DOCX_FIXTURES" --format docx -o "$OUT/docx"
+
+    if unzip -p "$DOCX" word/document.xml 2>/dev/null | grep -qF "<w:tblBorders>"; then
+        pass "docx: tables have borders"
+    else
+        fail "docx: tables should have borders"
+    fi
+
+    if unzip -l "$DOCX" 2>/dev/null | grep -qF "word/media/"; then
+        pass "docx: graph embedded as an image"
+    else
+        fail "docx: graph should be embedded as an image"
+    fi
+
+    if unzip -p "$DOCX" word/document.xml 2>/dev/null | grep -qF "TOC \\o"; then
+        fail "docx: should not contain a table of contents field"
+    else
+        pass "docx: no table of contents field"
+    fi
+
+    if mddoco "$DOCX_FIXTURES" --format docx --theme dark -o "$OUT/docx_theme" &>/dev/null; then
+        fail "docx: --theme dark should exit non-zero"
+    else
+        pass "docx: --theme dark exits non-zero"
+    fi
+
+    if mddoco "$DOCX_FIXTURES" --format docx --toc -o "$OUT/docx_toc" 2>&1 >/dev/null \
+        | grep -qF -- "--toc is ignored"; then
+        pass "docx: --toc prints a warning"
+    else
+        fail "docx: --toc should print a warning"
+    fi
+else
+    echo "  SKIP: docx tests — pandoc or playwright not installed"
+fi
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo "─────────────────────────────────────────────"

@@ -42,4 +42,5 @@ mddoco examples/06_d2_diagrams --title "D2 Diagrams" --output ./out
 
 Each command writes a single HTML file into `./out/`. Add `--format pdf` to any
 of them to produce a PDF instead (requires Playwright's Chromium — see the main
-[README](../README.md)).
+[README](../README.md)), or `--format docx` for a Word document (requires
+Pandoc, and Playwright's Chromium for the examples with diagrams).

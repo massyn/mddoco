@@ -35,6 +35,13 @@ def theme_supports_pdf(theme: str) -> bool:
 
 def check_theme_format(theme: str, fmt: str) -> None:
     """Raise ValueError when the theme is missing or cannot produce ``fmt``."""
+    if fmt == "docx":
+        if theme != "default":
+            raise ValueError(
+                "Themes apply to HTML and PDF output only; Word output uses "
+                "Word's own styles. Remove --theme, or use --format html or pdf."
+            )
+        return
     if fmt == "pdf" and not theme_supports_pdf(theme):
         raise ValueError(
             f"Theme '{theme}' is screen-only and cannot produce PDF output. "

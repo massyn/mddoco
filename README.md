@@ -1,6 +1,6 @@
 # mddoco
 
-A CLI tool that converts markdown files to a single HTML or PDF document.
+A CLI tool that converts markdown files to a single HTML, PDF or Word document.
 
 [![Publish to PyPI](https://github.com/massyn/mddoco/actions/workflows/ci.yml/badge.svg)](https://github.com/massyn/mddoco/actions/workflows/ci.yml) 
 ![PyPI Version](https://img.shields.io/pypi/v/mddoco) ![PyPI Downloads](https://img.shields.io/pypi/dd/mddoco)
@@ -18,9 +18,9 @@ Or for development:
 pip install -e .
 ```
 
-> **Playwright (Chromium) is required for PDF output only.** HTML output works without it.
+> **Playwright (Chromium) is required for PDF output, and for diagrams in Word output.** HTML output works without it.
 > The `playwright` Python package is installed automatically, but the Chromium
-> browser it drives is not. The first time you render a PDF, mddoco downloads
+> browser it drives is not. The first time you need it, mddoco downloads
 > Chromium for you (~150 MB, one time). To do it ahead of time, or if the
 > automatic download fails, run it yourself:
 >
@@ -31,6 +31,10 @@ pip install -e .
 > **The `d2` command-line tool is required only if your documents contain
 > [D2 diagrams](#d2-diagrams).** It is a separate program, not a Python
 > package, so `pip` does not install it. See [Installing the D2 CLI](#installing-the-d2-cli).
+
+> **The `pandoc` command-line tool is required only for [Word output](#word-output)
+> (`--format docx`).** It is a separate program, not a Python package. See
+> [Installing Pandoc](#installing-pandoc).
 
 ## Usage
 
@@ -45,10 +49,10 @@ mddoco [OPTIONS] INPUT_PATH
 | Option | Short | Default | Description |
 |---|---|---|---|
 | `--output PATH` | `-o` | `.` | Output directory, or an explicit file path if it has an extension (`-o out/report.html`) |
-| `--format [html\|pdf]` | `-f` | `html` | Output format (PDF needs Playwright; the `site-*` themes are HTML only) |
+| `--format [html\|pdf\|docx]` | `-f` | `html` | Output format (PDF needs Playwright; Word needs Pandoc, plus Playwright when diagrams are present; the `site-*` themes are HTML only) |
 | `--title TEXT` | `-t` | _(none)_ | Document title shown at the top of the page |
-| `--theme NAME` | | `default` | Theme to use for rendering |
-| `--toc / --no-toc` | | off | Generate a table of contents |
+| `--theme NAME` | | `default` | Theme to use for rendering (HTML and PDF only; Word output rejects any theme but `default`) |
+| `--toc / --no-toc` | | off | Generate a table of contents (ignored, with a warning, for Word output) |
 | `--toc-depth N` | | `3` | Maximum heading depth included in the TOC (1–6) |
 
 ### Examples
@@ -71,9 +75,16 @@ With a title, TOC, and custom output directory:
 mddoco ./docs --title "My Project" --toc --output ./out
 ```
 
+As a PDF or a Word document:
+
+```bash
+mddoco ./docs --format pdf
+mddoco ./docs --format docx
+```
+
 ## Output
 
-All matched markdown files are combined into a single document in the output directory, as HTML (the default) or PDF (`--format pdf`). The filename is derived from the input folder or file name, with the `.html` or `.pdf` extension. If `--output` ends in an extension, it is used as the exact output file path instead.
+All matched markdown files are combined into a single document in the output directory, as HTML (the default), PDF (`--format pdf`) or Word (`--format docx`). The filename is derived from the input folder or file name, with the `.html`, `.pdf` or `.docx` extension. If `--output` ends in an extension, it is used as the exact output file path instead.
 
 ## Examples
 
@@ -293,7 +304,7 @@ graph TD
 ```
 ````
 
-mddoco detects mermaid blocks automatically and loads the Mermaid.js CDN only when needed.
+mddoco detects mermaid blocks automatically and loads the Mermaid.js CDN only when needed. In Word output, Mermaid diagrams are drawn to PNG images, which needs network access to load Mermaid.js.
 
 ### D2 diagrams
 
@@ -307,7 +318,7 @@ server -> db: query
 ```
 ````
 
-Unlike Mermaid, D2 diagrams are rendered while mddoco builds the document, by the `d2` command-line tool, and embedded as inline SVG. The output has no extra scripts, works offline, and prints to PDF without waiting for anything to load.
+Unlike Mermaid, D2 diagrams are rendered while mddoco builds the document, by the `d2` command-line tool, and embedded as inline SVG. The output has no extra scripts, works offline, and prints to PDF without waiting for anything to load. In Word output the SVG is converted to a PNG image.
 
 - The `d2` CLI must be installed and on your `PATH` (see below). It is only needed when a document contains a `d2` block; otherwise mddoco never looks for it.
 - A diagram that fails to compile stops the build with D2's error message, the same as an invalid `graph` block.
@@ -336,3 +347,34 @@ d2 --version
 - **CI:** install `d2` in the workflow before building documents that contain D2 diagrams, for example by downloading a pinned release archive as this repository's own [workflow](.github/workflows/ci.yml) does.
 
 If `d2` is missing, mddoco stops with an error pointing to the install guide, and only when it finds a `d2` block.
+
+## Word output
+
+`--format docx` writes a Word document:
+
+```bash
+mddoco docs/ --format docx --title "Security Findings" -o out/
+```
+
+mddoco renders any Jinja2 templates, draws each `graph`, `d2` and `mermaid` block to a PNG image, and passes the result to [Pandoc](https://pandoc.org). Every table then gets grid borders, cell padding and a bold, shaded header row. The borders are written onto each table, because Google Docs keeps them reliably that way.
+
+- **Requirements:** `pandoc` on your `PATH`, and Playwright with Chromium (needed only when the document has `graph`, `d2` or `mermaid` blocks, to draw them as images; installed the same way as for PDF output). `d2` is needed only when a document has a `d2` block.
+- **Mermaid needs network access.** It is drawn in Chromium with the pinned Mermaid.js loaded from a CDN. `graph` and `d2` diagrams are drawn offline.
+- **No table of contents.** Insert one in Word, or in Google Docs with Insert > Table of contents. `--toc` is ignored with a warning.
+- **No themes.** The themes are browser HTML and CSS, so `--theme` with anything other than `default` is an error. The document uses Word's default styles.
+- **Code blocks** keep their syntax colours.
+
+### Google Docs
+
+There is no Google Docs file format. To get a Google Doc, upload the `.docx` to Google Drive, then right-click it and choose Open with > Google Docs, or open it and choose File > Save as Google Docs.
+
+### Installing Pandoc
+
+| Platform | Command |
+|---|---|
+| macOS (Homebrew) | `brew install pandoc` |
+| Debian and Ubuntu | `sudo apt-get install pandoc` |
+| Windows (Chocolatey) | `choco install pandoc` |
+| Any platform | Download an installer from [pandoc.org/installing.html](https://pandoc.org/installing.html) |
+
+Check it with `pandoc --version`. If `pandoc` is missing, mddoco stops with an error pointing to the install page.

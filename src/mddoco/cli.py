@@ -4,6 +4,7 @@ from pathlib import Path
 import click
 
 from mddoco.converter import convert_files
+from mddoco.docx import build_docx
 from mddoco.pdf import html_to_pdf
 from mddoco.preprocessor import load_context
 from mddoco.renderer import check_theme_format, render_html
@@ -29,7 +30,7 @@ from mddoco.writer import write_output
     "fmt",
     default="html",
     show_default=True,
-    type=click.Choice(["html", "pdf"], case_sensitive=False),
+    type=click.Choice(["html", "pdf", "docx"], case_sensitive=False),
     help="Output format.",
 )
 @click.option("--title", "-t", default=None, help="Document title.")
@@ -76,16 +77,6 @@ def main(
 
     click.echo(f"Found {len(md_files)} markdown file(s).")
 
-    try:
-        context = load_context(input_path)
-        raw = convert_files(md_files, toc=toc, toc_depth=toc_depth, context=context)
-    except Exception as exc:
-        raise click.ClickException(str(exc)) from exc
-    sections = [(p, html) for p, html, _ in raw]
-    toc_html = build_toc([e for _, _, entries in raw for e in entries]) if toc else None
-    has_mermaid = any('<div class="mermaid">' in html for _, html in sections)
-    has_code = any("<pre><code" in html for _, html in sections)
-
     # Resolve output directory and filename.
     # If output_path has a suffix, treat it as an explicit file path.
     # Otherwise treat it as a directory and derive the filename from the input.
@@ -97,6 +88,32 @@ def main(
         stem = resolved.stem if resolved.is_file() else resolved.name
         out_dir = output_path
         out_filename = f"{stem}.{fmt}"
+
+    if fmt == "docx":
+        if toc:
+            click.echo(
+                "Warning: --toc is ignored for Word output. In Word or Google Docs, "
+                "use Insert > Table of contents.",
+                err=True,
+            )
+        dest = out_dir / out_filename
+        click.echo("Building Word document...")
+        try:
+            build_docx(md_files, dest, context=load_context(input_path), title=title)
+        except Exception as exc:
+            raise click.ClickException(str(exc)) from exc
+        click.echo(f"Written to {dest}")
+        return
+
+    try:
+        context = load_context(input_path)
+        raw = convert_files(md_files, toc=toc, toc_depth=toc_depth, context=context)
+    except Exception as exc:
+        raise click.ClickException(str(exc)) from exc
+    sections = [(p, html) for p, html, _ in raw]
+    toc_html = build_toc([e for _, _, entries in raw for e in entries]) if toc else None
+    has_mermaid = any('<div class="mermaid">' in html for _, html in sections)
+    has_code = any("<pre><code" in html for _, html in sections)
 
     try:
         content = render_html(
