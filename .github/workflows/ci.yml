@@ -100,7 +100,7 @@ jobs:
 
       - name: Install d2
         run: |
-          curl -fsSL https://github.com/terrastruct/d2/releases/download/v0.9.0/d2-v0.9.0-linux-amd64.tar.gz | tar xz
+          curl -fsSL https://github.com/d2lang/d2/releases/download/v0.9.0/d2-v0.9.0-linux-amd64.tar.gz | tar xz
           sudo make -C d2-v0.9.0 install
 
       - name: Lint with ruff
