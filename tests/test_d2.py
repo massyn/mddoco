@@ -76,8 +76,9 @@ def test_compile_failure_raises_with_d2_message(fake_d2, monkeypatch):
         "run",
         _fake_run(stderr="err: maps must be terminated", returncode=1),
     )
+    html = _block("a -> {")
     with pytest.raises(RuntimeError, match="maps must be terminated"):
-        process_d2(_block("a -> {"))
+        process_d2(html)
 
 
 def test_timeout_raises(fake_d2, monkeypatch):
@@ -85,14 +86,16 @@ def test_timeout_raises(fake_d2, monkeypatch):
         raise subprocess.TimeoutExpired(cmd, kwargs["timeout"])
 
     monkeypatch.setattr(d2.subprocess, "run", run)
+    html = _block("a -> b")
     with pytest.raises(RuntimeError, match="timed out"):
-        process_d2(_block("a -> b"))
+        process_d2(html)
 
 
 def test_missing_binary_gives_install_hint(monkeypatch):
     monkeypatch.setattr(d2.shutil, "which", lambda name: None)
+    html = _block("a -> b")
     with pytest.raises(RuntimeError, match="d2lang.com/tour/install"):
-        process_d2(_block("a -> b"))
+        process_d2(html)
 
 
 @pytest.mark.skipif(shutil.which("d2") is None, reason="d2 CLI not installed")
@@ -105,5 +108,6 @@ def test_real_d2_renders_svg():
 
 @pytest.mark.skipif(shutil.which("d2") is None, reason="d2 CLI not installed")
 def test_real_d2_rejects_invalid_source():
+    html = _block("a -&gt; {")
     with pytest.raises(RuntimeError, match="d2 failed"):
-        process_d2(_block("a -&gt; {"))
+        process_d2(html)

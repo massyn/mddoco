@@ -11,9 +11,7 @@ _D2_BLOCK = re.compile(
     re.DOTALL,
 )
 
-_SVG_HEADER = re.compile(r"^.*?(?=<svg)", re.DOTALL)
-
-_OUTER_SVG = re.compile(r'(?P<tag><svg\b[^>]*?)\s+viewBox="(?P<dims>[^"]+)"')
+_OUTER_SVG = re.compile(r'(?P<tag><svg\b[^>]*)\sviewBox="(?P<dims>[^"]+)"')
 
 _INSTALL_HINT = (
     "D2 diagrams require the 'd2' command-line tool, which was not found on "
@@ -45,7 +43,8 @@ def _render_d2(source: str) -> str:
         detail = result.stderr.strip() or f"exit code {result.returncode}"
         raise RuntimeError(f"d2 failed: {detail}")
 
-    svg = _SVG_HEADER.sub("", result.stdout, count=1)  # strip XML declaration
+    start = result.stdout.find("<svg")  # skip the XML declaration
+    svg = result.stdout[max(start, 0) :]
     svg = _OUTER_SVG.sub(_with_natural_size, svg, count=1)
     return f'<div class="d2">{svg}</div>'
 
@@ -71,12 +70,13 @@ def process_d2(html: str) -> tuple[str, bool]:
         try:
             return _render_d2(m.group(1))
         except Exception as exc:
-            log.error("D2 error: %s", exc)
             errors.append(exc)
             return ""
 
     processed = _D2_BLOCK.sub(replace, html)
 
+    for exc in errors:
+        log.error("D2 error: %s", exc)
     if errors:
         raise errors[0]
 
