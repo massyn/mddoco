@@ -98,6 +98,11 @@ jobs:
       - name: Install Playwright browser
         run: playwright install chromium --with-deps
 
+      - name: Install d2
+        run: |
+          curl --proto '=https' --tlsv1.2 -fsSL https://github.com/d2lang/d2/releases/download/v0.9.0/d2-v0.9.0-linux-amd64.tar.gz | tar xz
+          sudo make -C d2-v0.9.0 install
+
       - name: Lint with ruff
         run: ruff check src tests
 
@@ -153,7 +158,7 @@ jobs:
           STATUS=$(cat <<EOF
           📦 mddoco v${VERSION} is now on PyPI
 
-          Markdown to HTML/PDF document converter — themes, table of contents, Mermaid diagrams, native charts, Jinja2 and CSV context.
+          Markdown to HTML/PDF document converter — themes, table of contents, Mermaid and D2 diagrams, native charts, Jinja2 and CSV context.
 
           Install / upgrade:
               pip install --upgrade mddoco

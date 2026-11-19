@@ -2,6 +2,7 @@ from pathlib import Path
 
 import markdown
 
+from mddoco.d2 import process_d2
 from mddoco.graph import process_graph
 from mddoco.mermaid import process_mermaid
 from mddoco.preprocessor import render_j2
@@ -36,6 +37,7 @@ def convert_file(
     html = md.convert(text)
     html, _ = process_mermaid(html)
     html, _ = process_graph(html)
+    html, _ = process_d2(html)
 
     toc_entries = flatten_tokens(md.toc_tokens) if toc else []
     return html, toc_entries

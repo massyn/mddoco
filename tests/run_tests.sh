@@ -708,6 +708,61 @@ for theme in site site-professional site-dark site-terminal; do
 done
 
 # ---------------------------------------------------------------------------
+# 31. D2 diagrams — rendered to inline SVG by the d2 CLI at build time
+#     (skipped when d2 is not installed). d2_fixtures is kept apart from
+#     fixtures so that the directory-wide runs above never need d2.
+# ---------------------------------------------------------------------------
+D2_FIXTURES="d2_fixtures"
+
+if command -v d2 &>/dev/null; then
+    run_test \
+        "d2 diagram file" \
+        "$OUT/d2/01_d2.html" \
+        "$D2_FIXTURES/01_d2.md" -o "$OUT/d2"
+
+    check_contains \
+        "d2: diagram embedded as inline SVG" \
+        "$OUT/d2/01_d2.html" \
+        '<div class="d2"><svg'
+
+    check_not_contains \
+        "d2: raw fenced block not present in output" \
+        "$OUT/d2/01_d2.html" \
+        'class="language-d2"'
+
+    check_not_contains \
+        "d2: no Mermaid.js loaded for d2 diagrams" \
+        "$OUT/d2/01_d2.html" \
+        "mermaid.min.js"
+
+    echo -n "  "
+    if ! mddoco "$D2_FIXTURES/_invalid_d2.md" -o "$OUT/d2_error" &>/dev/null; then
+        pass "invalid d2 block exits non-zero"
+    else
+        fail "invalid d2 block should have exited non-zero"
+    fi
+
+    run_test \
+        "example 06_d2_diagrams renders" \
+        "$EX_OUT/06_d2_diagrams/06_d2_diagrams.html" \
+        "$EXAMPLES/06_d2_diagrams" --title "D2 Diagrams" -o "$EX_OUT/06_d2_diagrams"
+
+    check_contains \
+        "example 06_d2_diagrams: diagram embedded as inline SVG" \
+        "$EX_OUT/06_d2_diagrams/06_d2_diagrams.html" \
+        '<div class="d2"><svg'
+
+    if python -c "import playwright" 2>/dev/null; then
+        run_test \
+            "d2 diagram → PDF" \
+            "$OUT/d2_pdf/01_d2.pdf" \
+            "$D2_FIXTURES/01_d2.md" --format pdf -o "$OUT/d2_pdf"
+    fi
+else
+    echo "  SKIP: d2 tests — d2 CLI not installed"
+fi
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo "─────────────────────────────────────────────"

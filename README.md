@@ -1,10 +1,12 @@
 # mddoco
 
-A CLI tool that converts markdown files to a single HTML (or future PDF) document.
+A CLI tool that converts markdown files to a single HTML or PDF document.
 
 [![Publish to PyPI](https://github.com/massyn/mddoco/actions/workflows/ci.yml/badge.svg)](https://github.com/massyn/mddoco/actions/workflows/ci.yml) 
 ![PyPI Version](https://img.shields.io/pypi/v/mddoco) ![PyPI Downloads](https://img.shields.io/pypi/dd/mddoco)
 ## Installation
+
+mddoco needs Python 3.10 or newer.
 
 ```bash
 pip install mddoco
@@ -26,6 +28,10 @@ pip install -e .
 > playwright install chromium
 > ```
 
+> **The `d2` command-line tool is required only if your documents contain
+> [D2 diagrams](#d2-diagrams).** It is a separate program, not a Python
+> package, so `pip` does not install it. See [Installing the D2 CLI](#installing-the-d2-cli).
+
 ## Usage
 
 ```
@@ -38,8 +44,8 @@ mddoco [OPTIONS] INPUT_PATH
 
 | Option | Short | Default | Description |
 |---|---|---|---|
-| `--output PATH` | `-o` | `.` | Directory to write the output file |
-| `--format [html\|pdf]` | `-f` | `html` | Output format |
+| `--output PATH` | `-o` | `.` | Output directory, or an explicit file path if it has an extension (`-o out/report.html`) |
+| `--format [html\|pdf]` | `-f` | `html` | Output format (PDF needs Playwright; the `site-*` themes are HTML only) |
 | `--title TEXT` | `-t` | _(none)_ | Document title shown at the top of the page |
 | `--theme NAME` | | `default` | Theme to use for rendering |
 | `--toc / --no-toc` | | off | Generate a table of contents |
@@ -67,11 +73,11 @@ mddoco ./docs --title "My Project" --toc --output ./out
 
 ## Output
 
-All matched markdown files are combined into a single HTML document in the output directory. The filename is derived from the input folder or file name.
+All matched markdown files are combined into a single document in the output directory, as HTML (the default) or PDF (`--format pdf`). The filename is derived from the input folder or file name, with the `.html` or `.pdf` extension. If `--output` ends in an extension, it is used as the exact output file path instead.
 
 ## Examples
 
-The [`examples/`](examples/) directory contains five runnable input folders, each
+The [`examples/`](examples/) directory contains six runnable input folders, each
 covering a different feature:
 
 | Folder | Demonstrates |
@@ -81,6 +87,7 @@ covering a different feature:
 | [`examples/03_themed_report`](examples/03_themed_report) | Themes and a table of contents |
 | [`examples/04_jinja_data`](examples/04_jinja_data) | Jinja2 templates with JSON and CSV data files |
 | [`examples/05_security_findings`](examples/05_security_findings) | CSV data grouped in a Jinja2 template and fed into a `graph` chart |
+| [`examples/06_d2_diagrams`](examples/06_d2_diagrams) | D2 diagrams (requires the `d2` CLI) |
 
 ```bash
 mddoco examples/03_themed_report --theme professional --title "Q3 Platform Review" --toc --output ./out
@@ -183,7 +190,9 @@ All themes support:
 
 - Optional document title
 - Optional table of contents (the `site-*` themes use their side nav instead)
-- [Mermaid.js](https://mermaid.js.org) diagram support (loaded only when diagrams are present)
+- Syntax highlighting for code blocks ([highlight.js](https://highlightjs.org), loaded from a CDN only when code blocks are present)
+- [Mermaid.js](https://mermaid.js.org) diagram support (loaded from a CDN only when diagrams are present)
+- [D2](https://d2lang.com) diagrams, rendered to inline SVG at build time (needs the `d2` CLI, only when diagrams are present)
 - Graph diagram blocks
 
 ### Site themes
@@ -227,7 +236,7 @@ Use ` ```graph ` fenced blocks with a JSON payload. The only required field is `
 ```
 ````
 
-Series are inferred from the data keys (everything except `x`). Each series defaults to a line chart in blue.
+Series are inferred from the data keys (everything except `x`). Each series defaults to a line chart, coloured from a built-in palette.
 
 **Full schema:**
 
@@ -285,3 +294,45 @@ graph TD
 ````
 
 mddoco detects mermaid blocks automatically and loads the Mermaid.js CDN only when needed.
+
+### D2 diagrams
+
+[D2](https://d2lang.com) diagrams use the same fenced-block syntax:
+
+````markdown
+```d2
+direction: right
+client -> server: request
+server -> db: query
+```
+````
+
+Unlike Mermaid, D2 diagrams are rendered while mddoco builds the document, by the `d2` command-line tool, and embedded as inline SVG. The output has no extra scripts, works offline, and prints to PDF without waiting for anything to load.
+
+- The `d2` CLI must be installed and on your `PATH` (see below). It is only needed when a document contains a `d2` block; otherwise mddoco never looks for it.
+- A diagram that fails to compile stops the build with D2's error message, the same as an invalid `graph` block.
+- A diagram that takes longer than 30 seconds to compile stops the build with a timeout error.
+
+#### Installing the D2 CLI
+
+`d2` is a standalone program from the [D2 project](https://d2lang.com), not a Python package. Install it with one of the following, then check that it is on your `PATH`:
+
+```bash
+d2 --version
+```
+
+| Platform | Command |
+|---|---|
+| macOS (Homebrew) | `brew install d2` |
+| Linux and macOS (install script) | `curl -fsSL https://d2lang.com/install.sh \| sh -s --` |
+| Windows (Scoop) | `scoop install main/d2` |
+| Windows (Chocolatey) | `choco install d2` |
+| Windows (installer) | Download the `.msi` from the [releases page](https://github.com/d2lang/d2/releases); it adds `d2` to your `PATH` |
+| Any platform with Go | `go install github.com/d2lang/d2@latest` |
+
+- **Install script:** run it with `--dry-run` first (`curl -fsSL https://d2lang.com/install.sh | sh -s -- --dry-run`) to see what it will do. It uses a package manager when it finds one, and otherwise installs under `/usr/local`, or `~/.local` if `/usr/local` needs `sudo`. If it tells you to adjust `PATH`, do that.
+- **Standalone download:** archives for each platform are on the [releases page](https://github.com/d2lang/d2/releases). Extract one and run `make install`, or `make install PREFIX=$HOME/.local` to install without `sudo`.
+- **Other options and details:** see the [D2 install guide](https://d2lang.com/tour/install).
+- **CI:** install `d2` in the workflow before building documents that contain D2 diagrams, for example by downloading a pinned release archive as this repository's own [workflow](.github/workflows/ci.yml) does.
+
+If `d2` is missing, mddoco stops with an error pointing to the install guide, and only when it finds a `d2` block.
