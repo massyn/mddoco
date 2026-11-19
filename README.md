@@ -71,7 +71,7 @@ All matched markdown files are combined into a single HTML document in the outpu
 
 ## Examples
 
-The [`examples/`](examples/) directory contains five runnable input folders, each
+The [`examples/`](examples/) directory contains six runnable input folders, each
 covering a different feature:
 
 | Folder | Demonstrates |
@@ -81,6 +81,7 @@ covering a different feature:
 | [`examples/03_themed_report`](examples/03_themed_report) | Themes and a table of contents |
 | [`examples/04_jinja_data`](examples/04_jinja_data) | Jinja2 templates with JSON and CSV data files |
 | [`examples/05_security_findings`](examples/05_security_findings) | CSV data grouped in a Jinja2 template and fed into a `graph` chart |
+| [`examples/06_d2_diagrams`](examples/06_d2_diagrams) | D2 diagrams (requires the `d2` CLI) |
 
 ```bash
 mddoco examples/03_themed_report --theme professional --title "Q3 Platform Review" --toc --output ./out
@@ -184,6 +185,7 @@ All themes support:
 - Optional document title
 - Optional table of contents (the `site-*` themes use their side nav instead)
 - [Mermaid.js](https://mermaid.js.org) diagram support (loaded only when diagrams are present)
+- [D2](https://d2lang.com) diagrams, rendered to inline SVG at build time (needs the `d2` CLI, only when diagrams are present)
 - Graph diagram blocks
 
 ### Site themes
@@ -285,3 +287,20 @@ graph TD
 ````
 
 mddoco detects mermaid blocks automatically and loads the Mermaid.js CDN only when needed.
+
+### D2 diagrams
+
+[D2](https://d2lang.com) diagrams use the same fenced-block syntax:
+
+````markdown
+```d2
+direction: right
+client -> server: request
+server -> db: query
+```
+````
+
+Unlike Mermaid, D2 diagrams are rendered while mddoco builds the document, by the `d2` command-line tool, and embedded as inline SVG. The output has no extra scripts, works offline, and prints to PDF without waiting for anything to load.
+
+- The [`d2` CLI](https://d2lang.com/tour/install) must be installed and on your `PATH`. It is only needed when a document contains a `d2` block; otherwise mddoco never looks for it.
+- A diagram that fails to compile stops the build with D2's error message, the same as an invalid `graph` block.

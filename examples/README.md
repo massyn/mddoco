@@ -12,6 +12,7 @@ files at the top level).
 | [`03_themed_report`](03_themed_report) | Themes and a table of contents — the same content styled as a report |
 | [`04_jinja_data`](04_jinja_data) | `.md.j2` templates, importing `.json` and `.csv` data files, shared macros |
 | [`05_security_findings`](05_security_findings) | A `.csv` data file grouped in the template and fed into a native `graph` chart |
+| [`06_d2_diagrams`](06_d2_diagrams) | D2 diagrams rendered to inline SVG (requires the [`d2` CLI](https://d2lang.com/tour/install)) |
 
 ## Quick start
 
@@ -34,6 +35,9 @@ mddoco examples/04_jinja_data --title "Jinja Data Demo" --output ./out
 
 # 5. CSV data grouped in the template and charted
 mddoco examples/05_security_findings --title "Security Findings" --output ./out
+
+# 6. D2 diagrams (needs the d2 CLI installed)
+mddoco examples/06_d2_diagrams --title "D2 Diagrams" --output ./out
 ```
 
 Each command writes a single HTML file into `./out/`. Add `--format pdf` to any

@@ -141,11 +141,12 @@
         .toc-block > ul > li > a { font-weight: 700; }
         .toc-block a { color: var(--accent); font-size: 0.9em; }
 
-        /* Mermaid diagrams */
-        .mermaid {
+        /* Mermaid and D2 diagrams */
+        .mermaid, .d2 {
             text-align: center;
             margin: 1.5em 0;
         }
+        .d2 svg { max-width: 100%; height: auto; }
         /* body raises specificity above highlight.js's own pre code.hljs rule, which loads later */
         body pre code.hljs { background: transparent; padding: 0; }
         /* Print: no trailing space after the content, which would spill
