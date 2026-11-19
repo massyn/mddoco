@@ -1,0 +1,42 @@
+{% import "_macros.j2" as m %}
+{# SENTINEL_TEMPLATE_COMMENT #}
+# Template Check
+
+{{ m.badge("Project", project.name) }}
+
+Motto: {{ project.motto }}
+
+Owners: {{ project.owners | join(" and ") }}
+
+Shouting: {{ project.name | upper }}
+
+{% if project.released %}STATUS_RELEASED_BRANCH{% else %}STATUS_WRONG_BRANCH{% endif %}
+
+{% if project.archived %}ARCHIVED_WRONG_BRANCH{% endif %}
+
+## People
+
+| Name | Role | Skills |
+|------|------|--------|
+{% for p in people -%}
+| {{ p.name }} | {{ p.role }} | {{ p.skills if p.skills is string else p.skills | join(", ") }} |
+{% endfor %}
+Headcount: {{ people | length }}
+
+## Chart
+
+```graph
+{
+  "title": "Skills per person",
+  "show_legend": false,
+  "data": {
+    "x": {{ people | map(attribute="name") | list | tojson }},
+    "Skills": {{ [2, 1, 3] | tojson }}
+  },
+  "series": [{ "label": "Skills", "type": "bar" }]
+}
+```
+
+## Literal syntax
+
+{% raw %}Write {{ literal_variable }} to print a value.{% endraw %}
