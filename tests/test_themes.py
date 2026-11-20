@@ -6,7 +6,7 @@ from click.testing import CliRunner
 from mddoco.cli import main
 from mddoco.renderer import check_theme_format, render_html, theme_supports_pdf
 
-SITE_THEMES = ["site", "site-professional", "site-dark", "site-terminal"]
+SITE_THEMES = ["site", "site-professional", "site-professional-wide", "site-dark", "site-terminal"]
 
 
 @pytest.mark.parametrize("theme", SITE_THEMES)
