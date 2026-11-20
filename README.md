@@ -194,6 +194,7 @@ Themes are Jinja2 HTML files with embedded CSS. Pass a theme name with `--theme 
 | `paged-professional` | Corporate style with Paged.js pagination for print-ready PDFs |
 | `site` | Website layout: side nav with one page per H1, minimalist styling (HTML only) |
 | `site-professional` | Same as `site` with a navy sidebar and card layout (HTML only) |
+| `site-professional-wide` | Same as `site-professional` with the content card stretched to almost full width (HTML only) |
 | `site-dark` | Same as `site` on a dark background (HTML only) |
 | `site-terminal` | Same as `site` as a green-phosphor terminal, just for fun (HTML only) |
 

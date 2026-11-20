@@ -1,0 +1,14 @@
+{#- site-professional-wide: the site-professional theme with the content card stretched
+    to almost the full width beside the sidebar. Everything else comes from
+    site-professional.html. -#}
+{% extends "site-professional.html" %}
+{% set pdf_supported = false %}
+
+{% block theme_styles %}
+        {{ super() }}
+        :root { --site-content-width: none; }
+        .site-content { max-width: none; margin: 0 1.5rem; }
+        @media (max-width: 900px) {
+            .site-content { margin: 0; }
+        }
+{% endblock %}
